@@ -1,0 +1,16 @@
+{% extends "layout.html" %} {% block title %} Index {% endblock %} {% block main
+%}
+<h3>
+    Welcome to your Bookshelf!
+</h3>
+<p>
+    {{ message }}
+</p>
+<div>
+    <form action="/find" method="post">
+        <button name="find" type="submit">Search for book</button>
+    </form>
+
+</div>
+
+{% endblock %}

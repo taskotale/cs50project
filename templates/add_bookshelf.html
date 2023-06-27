@@ -1,0 +1,16 @@
+{% extends "layout.html" %} {% block title %} Add Book {% endblock %} {% block
+main %}
+<h3>Add a bookshelf</h3>
+<p>{{ message }}</p>
+<div>
+	<form action="/add_bookshelf" enctype="multipart/form-data" method="post">
+		<input min="1" name="bookshelf" placeholder="How many shelves?" type="number" />
+		<input name="image" type="file">
+		<button name="add" type="submit">Add</button>
+	</form>
+</div>
+<div>
+	<img src="{{path}}">
+</div>
+
+{% endblock %}

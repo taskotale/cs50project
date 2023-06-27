@@ -1,0 +1,14 @@
+{% extends "layout.html" %} {% block title %} Add Book {% endblock %} {% block
+main %}
+<h3>Add a book</h3>
+<p>{{ message }}</p>
+<div>
+	<form action="/add_book" method="post">
+		<input name="title" placeholder="Book title" type="text" />
+		<input name="author" placeholder="Author" type="text" />
+		<input name="language" placeholder="Language" type="text" />
+		<button name="add" type="submit">Add</button>
+	</form>
+</div>
+
+{% endblock %}
