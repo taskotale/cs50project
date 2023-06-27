@@ -7,7 +7,7 @@ CREATE TABLE users (
 CREATE TABLE bookshelves (
     id INTEGER NOT NULL,
     description TEXT,
-    image BLOB,
+    image TEXT,
     PRIMARY KEY(id)
 );
 
@@ -18,11 +18,10 @@ CREATE TABLE books (
     language TEXT NOT NULL,
     location INTEGER NOT NULL,
     description TEXT,
-    image BLOB, 
+    image TEXT,
+    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     bookshelf_id INTEGER,
     user_id INTEGER,
     FOREIGN KEY(bookshelf_id) REFERENCES bookshelves(id),
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
-
-ALTER TABLE books ADD date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL;

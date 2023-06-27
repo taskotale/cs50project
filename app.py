@@ -1,6 +1,5 @@
 import re
 
-from base64 import b64encode
 from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
@@ -8,6 +7,7 @@ from helpers import login_required
 from PIL import Image
 from werkzeug.security import check_password_hash, generate_password_hash
 
+# using helper function for login required
 
 app = Flask(__name__)
 
@@ -44,30 +44,35 @@ def add_book():
         title = request.form.get('title').lower()
         author = request.form.get('author').lower()
         lang = request.form.get('language').lower()
-        return render_template('add_book.html', message = 'Successfully added '+ title.title())
+        return render_template('add_book.html', message='Successfully added ' + title.title())
     else:
         return render_template('add_book.html')
-    
+
+
 @app.route('/add_bookshelf', methods=['GET', 'POST'])
 @login_required
 def add_bookshelf():
     if request.method == 'POST':
+        # using the PIL module for image manipulation
+        # found online, reading documentation for details and usage
         bookshelf = request.form.get('bookshelf')
         uploaded_image = request.files['image']
         img = Image.open(uploaded_image)
         (width, height) = (int(img.width/4), int(img.height/4))
         img = img.resize((width, height))
         img_path = './static/img/' + '1' + '.jpg'
-        img.save(img_path, quality = 70)
+        img.save(img_path, quality=70)
+
         if bookshelf.isnumeric():
             bookshelf = int(bookshelf)
-            return render_template('add_bookshelf.html', path = img_path)
+            return render_template('add_bookshelf.html', path=img_path)
         else:
-            return render_template('add_bookshelf.html', message = 'Please enter a number')
+            return render_template('add_bookshelf.html', message='Please enter a number')
     else:
         return render_template('add_bookshelf.html')
 
 
+# reused code from previous problem for login, logout and register
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     # clear if any user already connected
@@ -135,6 +140,7 @@ def register():
             elif len(password) < 3:
                 return 'password too short'
             # currently no need for additional security check
+
             # elif not re.search('[a-z]', password):
             #     return 'password must contain a lower case letter'
             # elif not re.search('[A-Z]', password):
