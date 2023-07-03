@@ -2,6 +2,7 @@ import re
 import requests
 
 from api_requests import get_book_data
+from compress_img import compress
 from cs50 import SQL
 from flask import Flask, redirect, render_template, request, session
 from flask_session import Session
@@ -57,7 +58,7 @@ def add_book():
                 'language': request.form.get('language').lower(),
                 'cover': None
             }
-    
+
         check_duplicate = db.execute(
             "SELECT id FROM books WHERE title = ? AND author = ? AND language = ? AND user_id = ?", book['title'], book['author'], book['language'], session['user_id'])
         if check_duplicate != []:
@@ -67,7 +68,7 @@ def add_book():
         # FIND BOOK LOCATION
         # FIND BOOK LOCATION
         # FIND BOOK LOCATION
-        
+
         # save book cover if not False
         path = ''
         if book['cover'] != None:
@@ -77,10 +78,10 @@ def add_book():
             for author in book['author']:
                 authors += author
             path = 'static/book_img/'+book['title'] + authors+'.jpg'
-            path = path.replace(' ','')
+            path = path.replace(' ', '')
             book['cover'].save(path, quality=100)
 
-        db.execute("INSERT INTO books (title, author, language, image, user_id) VALUES (?,?,?,?,?);", 
+        db.execute("INSERT INTO books (title, author, language, image, user_id) VALUES (?,?,?,?,?);",
                    book['title'], book['author'], book['language'], path, session['user_id'])
 
         # isbn test numbers
@@ -102,18 +103,20 @@ def add_bookshelf():
         # using the PIL module for image manipulation
         uploaded_image = request.files['image']
         # transfer image function to separate .py
-        if uploaded_image:
-            img = Image.open(uploaded_image)
-            # (width, height) = (int(img.width/4), int(img.height/4))
-            # img = img.resize((width, height))
-            # img_path = './static/shelf_img/' + shelf_id + '.jpg'
-            # img.save(img_path, quality=70)
 
         if width.isnumeric() and height.isnumeric() and int(width) > 0 and int(height) > 0:
             width = int(width)
             height = int(height)
             db.execute("INSERT INTO bookshelves (width, height, description, user_id) VALUES (?,?,?,?);",
                        width, height, description, session['user_id'])
+            if uploaded_image:
+                bookshelf_id = db.execute(
+                    "SELECT id FROM bookshelves WHERE user_id = ? ORDER BY id DESC LIMIT 1;", session['user_id'])
+                path = './static/shelf_img/' + 'bsi' + \
+                    str(bookshelf_id[0]['id']) + '.jpg'
+                db.execute("UPDATE bookshelves SET image = ? WHERE id =?;",
+                           path, bookshelf_id[0]['id'])
+                compress(uploaded_image, path)
             return render_template('add_bookshelf.html', message='Successfully Added')
         else:
             return render_template('add_bookshelf.html', message='not gooooood')
