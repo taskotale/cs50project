@@ -4,13 +4,34 @@ main %}
 <p>{{ message }}</p>
 <div>
 	<form action="/add_bookshelf" enctype="multipart/form-data" method="post">
-		<input min="1" name="bookshelf" placeholder="How many shelves?" type="number" />
-		<input name="image" type="file">
+		<input
+			autocomplete="off"
+			default="1"
+			min="1"
+			name="width"
+			placeholder="How many shelves wide?"
+			type="number"
+		/>
+		<input
+			autocomplete="off"
+			default="1"
+			min="1"
+			name="height"
+			placeholder="How many shelves high?"
+			type="number"
+		/>
+		<input
+			autocomplete="off"
+			name="description"
+			placeholder="Describe the shelf"
+		/>
+		<input default="False" name="image" type="file" />
+
 		<button name="add" type="submit">Add</button>
 	</form>
 </div>
 <div>
-	<img src="{{path}}">
+	<img src="{{path}}" />
 </div>
 
 {% endblock %}

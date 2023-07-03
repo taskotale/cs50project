@@ -6,18 +6,23 @@ CREATE TABLE users (
 
 CREATE TABLE bookshelves (
     id INTEGER NOT NULL,
+    width INTEGER NOT NULL,
+    height INTEGER NOT NULL,
     description TEXT,
     image TEXT,
-    PRIMARY KEY(id)
+    user_id INTEGER NOT NULL,
+    PRIMARY KEY(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 CREATE TABLE books (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     title TEXT NOT NULL,
-    author TEXT NOT NULL,
-    language TEXT NOT NULL,
-    location INTEGER NOT NULL,
-    description TEXT,
+    authors TEXT NOT NULL,
+    language TEXT,
+    location_x INTEGER,
+    location_y INTEGER,
+    note TEXT,
     image TEXT,
     date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     bookshelf_id INTEGER,
@@ -25,3 +30,5 @@ CREATE TABLE books (
     FOREIGN KEY(bookshelf_id) REFERENCES bookshelves(id),
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
+
+

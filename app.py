@@ -1,10 +1,12 @@
 import re
+import requests
 
+from api_requests import get_book_data
 from cs50 import SQL
-from flask import Flask, flash, redirect, render_template, request, session
+from flask import Flask, redirect, render_template, request, session
 from flask_session import Session
 from helpers import login_required
-from PIL import Image
+from PIL import Image  # delete after transferring to separate file
 from werkzeug.security import check_password_hash, generate_password_hash
 
 # using helper function for login required
@@ -32,7 +34,7 @@ def index():
     books = db.execute(
         "SELECT * FROM books JOIN users ON books.user_id = ?", session['user_id'])
     if books:
-        return print(books)
+        return render_template('index.html', message='you have something')
     else:
         return render_template('index.html', message='You have no books')
 
@@ -41,10 +43,50 @@ def index():
 @login_required
 def add_book():
     if request.method == 'POST':
-        title = request.form.get('title').lower()
-        author = request.form.get('author').lower()
-        lang = request.form.get('language').lower()
-        return render_template('add_book.html', message='Successfully added ' + title.title())
+        input_type = request.form.get('add')
+
+        if input_type == 'isbn':
+            isbn = request.form.get('isbn')
+            book = get_book_data(isbn)
+            if book == False:
+                return render_template('add_book.html', message='Please Try Again Or input Manually'), 404
+        elif input_type == 'manual':
+            book = {
+                'title': request.form.get('title').title().strip(),
+                'author': request.form.get('author').title().strip(),
+                'language': request.form.get('language').lower(),
+                'cover': None
+            }
+    
+        check_duplicate = db.execute(
+            "SELECT id FROM books WHERE title = ? AND author = ? AND language = ? AND user_id = ?", book['title'], book['author'], book['language'], session['user_id'])
+        if check_duplicate != []:
+            return render_template('add_book.html', message='You already have this book: ' + book['title'] + '\nAdd anyway?')
+        # FIND BOOK LOCATION ask where is this book
+        # FIND BOOK LOCATION
+        # FIND BOOK LOCATION
+        # FIND BOOK LOCATION
+        # FIND BOOK LOCATION
+        
+        # save book cover if not False
+        path = ''
+        if book['cover'] != None:
+            authors = ''
+            # since author is a list with multiple possible authors
+            # making a string out of it so we can concat in a str
+            for author in book['author']:
+                authors += author
+            path = 'static/book_img/'+book['title'] + authors+'.jpg'
+            path = path.replace(' ','')
+            book['cover'].save(path, quality=100)
+
+        db.execute("INSERT INTO books (title, author, language, image, user_id) VALUES (?,?,?,?,?);", 
+                   book['title'], book['author'], book['language'], path, session['user_id'])
+
+        # isbn test numbers
+        #  978-0-06-264154-0 - working
+        #  978-86-6423-003-2 - not-working
+        return render_template('add_book.html', message='Successfully added '+book['title'])
     else:
         return render_template('add_book.html')
 
@@ -53,21 +95,28 @@ def add_book():
 @login_required
 def add_bookshelf():
     if request.method == 'POST':
-        # using the PIL module for image manipulation
-        # found online, reading documentation for details and usage
-        bookshelf = request.form.get('bookshelf')
-        uploaded_image = request.files['image']
-        img = Image.open(uploaded_image)
-        (width, height) = (int(img.width/4), int(img.height/4))
-        img = img.resize((width, height))
-        img_path = './static/img/' + '1' + '.jpg'
-        img.save(img_path, quality=70)
+        width = request.form.get('width')
+        height = request.form.get('height')
+        description = request.form.get('description')
 
-        if bookshelf.isnumeric():
-            bookshelf = int(bookshelf)
-            return render_template('add_bookshelf.html', path=img_path)
+        # using the PIL module for image manipulation
+        uploaded_image = request.files['image']
+        # transfer image function to separate .py
+        if uploaded_image:
+            img = Image.open(uploaded_image)
+            # (width, height) = (int(img.width/4), int(img.height/4))
+            # img = img.resize((width, height))
+            # img_path = './static/shelf_img/' + shelf_id + '.jpg'
+            # img.save(img_path, quality=70)
+
+        if width.isnumeric() and height.isnumeric() and int(width) > 0 and int(height) > 0:
+            width = int(width)
+            height = int(height)
+            db.execute("INSERT INTO bookshelves (width, height, description, user_id) VALUES (?,?,?,?);",
+                       width, height, description, session['user_id'])
+            return render_template('add_bookshelf.html', message='Successfully Added')
         else:
-            return render_template('add_bookshelf.html', message='Please enter a number')
+            return render_template('add_bookshelf.html', message='not gooooood')
     else:
         return render_template('add_bookshelf.html')
 
@@ -172,3 +221,14 @@ def register():
             return render_template('register.html', message='Invalid username')
     else:
         return render_template('register.html')
+
+# @app.route('/book/<isbn>')
+# def get_book(isbn):
+#     url = f"https://api.openbd.jp/v1/get?isbn={isbn}"
+#     response = requests.get(url)
+
+#     if response.status_code == 200:
+#         book_data = response.json()
+#         return jsonify(book_data)
+#     else:
+#         return jsonify(error='Book not found'), 404
