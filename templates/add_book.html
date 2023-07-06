@@ -12,10 +12,14 @@ main %}
 <hr />
 <div>
 	<h3>Manual input</h3>
-	<form action="/add_book" method="post">
+	<form action="/add_book" enctype="multipart/form-data" method="post">
 		<input name="title" placeholder="Book title" type="text" />
 		<input name="author" placeholder="Author" type="text" />
-		<select data-placeholder="Choose a Language..." default="EN" name="language">
+		<select
+			data-placeholder="Choose a Language..."
+			default="EN"
+			name="language"
+		>
 			<option value="EN">English</option>
 			<option value="AF">Afrikaans</option>
 			<option value="SQ">Albanian</option>
@@ -74,7 +78,7 @@ main %}
 			<option value="SL">Slovenian</option>
 			<option value="ES">Spanish</option>
 			<option value="SW">Swahili</option>
-			<option value="SV">Swedish </option>
+			<option value="SV">Swedish</option>
 			<option value="TA">Tamil</option>
 			<option value="TT">Tatar</option>
 			<option value="TE">Telugu</option>
@@ -88,14 +92,19 @@ main %}
 			<option value="VI">Vietnamese</option>
 			<option value="CY">Welsh</option>
 			<option value="XH">Xhosa</option>
-		  </select>
+		</select>
+		<input default="False" name="manual_image" type="file" />
 		<button name="add" value="manual" type="submit">Add</button>
 	</form>
 </div>
 <hr />
 <div>
-	<h3>Take a picture of the cover</h3>
-	<div>some placeholder for now</div>
+	<h3>Add a book with barcode picture</h3>
+	<h6>Make sure that the barcode is oriented horizontally</h6>
+	<form action="/add_book" enctype="multipart/form-data" method="post">
+		<input default="False" name="barcode_img" type="file" />
+		<button name="add" value="bc-img" type="submit">Add</button>
+	</form>
 </div>
 
 {% endblock %}

@@ -1,14 +1,21 @@
 import re
-import requests
+import json
 
 from api_requests import get_book_data
-from compress_img import compress
+
+from base64 import b64encode, b64decode
+from io import BytesIO
+
+from image import compress, check_file_type
 from cs50 import SQL
-from flask import Flask, redirect, render_template, request, session
+from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from helpers import login_required
+from io import BytesIO
 from PIL import Image  # delete after transferring to separate file
 from werkzeug.security import check_password_hash, generate_password_hash
+
+from pyzbar.pyzbar import decode
 
 # using helper function for login required
 
@@ -33,11 +40,11 @@ def after_request(response):
 @login_required
 def index():
     books = db.execute(
-        "SELECT * FROM books JOIN users ON books.user_id = ?", session['user_id'])
+        "SELECT title, author, image FROM books JOIN users ON books.user_id = ?", session['user_id'])
     if books:
-        return render_template('index.html', message='you have something')
+        return render_template('index.html', books=books)
     else:
-        return render_template('index.html', message='You have no books')
+        return render_template('index.html', books='You have no books')
 
 
 @app.route('/add_book', methods=['GET', 'POST'])
@@ -48,27 +55,58 @@ def add_book():
 
         if input_type == 'isbn':
             isbn = request.form.get('isbn')
+            if isbn == '':
+                return render_template('add_book.html', message='Please input something'), 404
             book = get_book_data(isbn)
             if book == False:
                 return render_template('add_book.html', message='Please Try Again Or input Manually'), 404
+
         elif input_type == 'manual':
+            manual_image = request.files['manual_image']
+            if manual_image:
+                if check_file_type(manual_image):
+                    cover = Image.open(manual_image)
+                    cover.resize((128, 196))
+                else:
+                    return render_template('add_book.html', message='File not supported')
+            else:
+                cover = None
             book = {
                 'title': request.form.get('title').title().strip(),
                 'author': request.form.get('author').title().strip(),
                 'language': request.form.get('language').lower(),
-                'cover': None
+                'cover': cover
             }
+
+        elif input_type == 'bc-img':
+            uploaded_image = request.files['barcode_img']
+            if check_file_type(uploaded_image):
+                image = Image.open(uploaded_image)
+            else:
+                return render_template('add_book.html', message='File not supported')
+
+            barcode = decode(image)
+            barcode = str(barcode[0][0])
+            barcode = re.findall('\d+', barcode)[0]
+            book = book = get_book_data(barcode)
 
         check_duplicate = db.execute(
             "SELECT id FROM books WHERE title = ? AND author = ? AND language = ? AND user_id = ?", book['title'], book['author'], book['language'], session['user_id'])
         if check_duplicate != []:
             return render_template('add_book.html', message='You already have this book: ' + book['title'] + '\nAdd anyway?')
-        # FIND BOOK LOCATION ask where is this book
-        # FIND BOOK LOCATION
-        # FIND BOOK LOCATION
-        # FIND BOOK LOCATION
-        # FIND BOOK LOCATION
 
+        session['book'] = book
+        return redirect('/add_book_confirm')
+        # return render_template('add_book.html', message='Successfully added: '+book['title'])
+    else:
+        return render_template('add_book.html')
+
+
+@app.route('/add_book_confirm', methods=['GET','POST'])
+@login_required
+def confirm_book():
+    book = session.get('book')
+    if request.method == 'POST':
         # save book cover if not False
         path = ''
         if book['cover'] != None:
@@ -80,16 +118,20 @@ def add_book():
             path = 'static/book_img/'+book['title'] + authors+'.jpg'
             path = path.replace(' ', '')
             book['cover'].save(path, quality=100)
-
         db.execute("INSERT INTO books (title, author, language, image, user_id) VALUES (?,?,?,?,?);",
                    book['title'], book['author'], book['language'], path, session['user_id'])
-
-        # isbn test numbers
-        #  978-0-06-264154-0 - working
-        #  978-86-6423-003-2 - not-working
-        return render_template('add_book.html', message='Successfully added '+book['title'])
-    else:
+        print('hello')
         return render_template('add_book.html')
+    else:
+
+        image = book['cover']
+        print(image)
+        image_bytes = BytesIO()
+        image.save(image_bytes, format='JPEG')
+        image_bytes = image_bytes.getvalue()
+        encoded_image = b64encode(image_bytes).decode('utf-8')
+        bookshelves = db.execute("SELECT id, description FROM bookshelves WHERE user_id =?;", session['user_id'])
+        return render_template('add_book_confirm.html', book=book, cover = encoded_image, bookshelves = bookshelves)
 
 
 @app.route('/add_bookshelf', methods=['GET', 'POST'])
@@ -102,6 +144,7 @@ def add_bookshelf():
 
         # using the PIL module for image manipulation
         uploaded_image = request.files['image']
+
         # transfer image function to separate .py
 
         if width.isnumeric() and height.isnumeric() and int(width) > 0 and int(height) > 0:
@@ -110,6 +153,8 @@ def add_bookshelf():
             db.execute("INSERT INTO bookshelves (width, height, description, user_id) VALUES (?,?,?,?);",
                        width, height, description, session['user_id'])
             if uploaded_image:
+                if not check_file_type(uploaded_image):
+                    return render_template('add_bookshelf.html', message='File not supported')
                 bookshelf_id = db.execute(
                     "SELECT id FROM bookshelves WHERE user_id = ? ORDER BY id DESC LIMIT 1;", session['user_id'])
                 path = './static/shelf_img/' + 'bsi' + \
@@ -119,7 +164,7 @@ def add_bookshelf():
                 compress(uploaded_image, path)
             return render_template('add_bookshelf.html', message='Successfully Added')
         else:
-            return render_template('add_bookshelf.html', message='not gooooood')
+            return render_template('add_bookshelf.html', message='Please insert a valid bookshelf size')
     else:
         return render_template('add_bookshelf.html')
 
@@ -224,14 +269,3 @@ def register():
             return render_template('register.html', message='Invalid username')
     else:
         return render_template('register.html')
-
-# @app.route('/book/<isbn>')
-# def get_book(isbn):
-#     url = f"https://api.openbd.jp/v1/get?isbn={isbn}"
-#     response = requests.get(url)
-
-#     if response.status_code == 200:
-#         book_data = response.json()
-#         return jsonify(book_data)
-#     else:
-#         return jsonify(error='Book not found'), 404

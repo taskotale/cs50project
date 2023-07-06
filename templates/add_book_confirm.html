@@ -1,0 +1,24 @@
+{% extends "layout.html" %} {% block title %} Index {% endblock %} {% block main
+%}
+<p>{{ message }}</p>
+<h3>Confirm?</h3>
+
+<p>title: {{book['title']}}</p>
+<p>author: {% for key in book['author']%} {{key}} {%endfor%}</p>
+<p>lang: {{book['language']}}</p>
+<img src="data:image/jpg;base64,{{cover}}" />
+
+<h4>where is this book going?</h4>
+<h5>Available shelves</h5>
+<form method="post">
+<select class="form-select" aria-label="Default select example">
+	<option selected>Select bookshelf</option>
+
+	{% for shelf in bookshelves%}
+	<option value="{{shelf['id']}}">{{shelf['description']}}</option>
+	{%endfor%}
+    <option value="None">Not on shelf</option>
+</select>
+</form>
+
+{% endblock %}

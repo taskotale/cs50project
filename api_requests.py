@@ -1,6 +1,5 @@
 import requests
 
-from flask import render_template
 from io import BytesIO
 from PIL import Image 
 
@@ -11,7 +10,6 @@ def get_book_data(isbn):
     response = requests.get(url)
     if response.status_code == 200:
         api_response = response.json()
-        print(api_response)
         if api_response['totalItems'] > 0:
             book_data = api_response['items'][0]['volumeInfo']
             title = book_data['title']

@@ -7,3 +7,13 @@ def compress(upload, path):
     img = img.resize((width, height))
     img.save(path, quality=70)
     return
+
+
+
+def check_file_type(file):
+    allowed_types = ['image/jpeg', 'image/png', 'image/gif']
+
+    if file.content_type not in allowed_types:
+        return False
+
+    return True

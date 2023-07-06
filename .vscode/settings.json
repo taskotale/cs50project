@@ -4,8 +4,11 @@
 	},
 	"python.formatting.provider": "none",
 	"cSpell.words": [
+		"frombytes",
 		"jsonify",
+		"pyheif",
 		"pytesseract",
+		"pyzbar",
 		"tesseract",
 		"werkzeug"
 	]
