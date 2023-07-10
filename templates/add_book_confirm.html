@@ -1,24 +1,64 @@
 {% extends "layout.html" %} {% block title %} Index {% endblock %} {% block main
 %}
 <p>{{ message }}</p>
-<h3>Confirm?</h3>
 
+{% if book %}
 <p>title: {{book['title']}}</p>
 <p>author: {% for key in book['author']%} {{key}} {%endfor%}</p>
 <p>lang: {{book['language']}}</p>
 <img src="data:image/jpg;base64,{{cover}}" />
 
-<h4>where is this book going?</h4>
-<h5>Available shelves</h5>
-<form method="post">
-<select class="form-select" aria-label="Default select example">
-	<option selected>Select bookshelf</option>
+<h5>Where is this book going?</h5>
+<div>
+	<p>Available shelves</p>
+	<form action="/add_book_confirm" method="post">
+		<select class="form-select" name="bookshelf_choice" required>
+			<option disabled>Select bookshelf</option>
 
-	{% for shelf in bookshelves%}
-	<option value="{{shelf['id']}}">{{shelf['description']}}</option>
-	{%endfor%}
-    <option value="None">Not on shelf</option>
-</select>
-</form>
+			{% for shelf in bookshelves%}
+			<option value="{{shelf['id']}}">{{shelf['description']}}</option>
+			{%endfor%}
+			<option value="None">Not on shelf</option>
+		</select>
+		<button name="confirm" value="first" type="submit">confirm</button>
+	</form>
+</div>
+{%else%}
+<div>
+	<h3>{{ selected['description'] }}</h3>
+	<img src="{{ selected['image'] }}" />
+	<form action="/add_book_confirm" method="post">
+		<label for="customRange2" class="form-label"
+			>Which shelf? (height from floor: 1 to {{selected['height']}})</label
+		>
+		<input
+			name="height"
+			type="range"
+			class="form-range"
+			min="1"
+			max="{{selected['height']}}"
+            value="1"
+			id="customRange2"
+            oninput="this.nextElementSibling.value = this.value"
+		/>
+        <output>1</output>
+        <br>
+		<label for="customRange2" class="form-label"
+			>Which shelf? (width: 1 to {{selected['width']}})</label
+		>
+		<input
+			name="width"
+			type="range"
+			class="form-range"
+			min="1"
+			max="{{selected['width']}}"
+            value="1"
+			id="customRange2"
+            oninput="this.nextElementSibling.value = this.value"
+		/>
+        <output>1</output>
+        <button name="confirm" value="second" type="submit">confirm</button>
+	</form>
+</div>
 
-{% endblock %}
+{%endif%} {% endblock %}

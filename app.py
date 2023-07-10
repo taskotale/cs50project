@@ -107,7 +107,21 @@ def add_book():
 def confirm_book():
     book = session.get('book')
     if request.method == 'POST':
-        # save book cover if not False
+        get_action = request.form.get('confirm')
+        width = 0
+        height = 0
+        if get_action == 'first':
+            selected_bookshelf = request.form.get('bookshelf_choice')
+            if selected_bookshelf != 'None':
+                selected_data = db.execute("SELECT image, height, width, description FROM bookshelves WHERE id=? AND user_id =?;",selected_bookshelf, session['user_id'])[0]
+                if selected_data['image'] == None:
+                    selected_data['image'] = './static/shelf_img/generic.png'
+                return render_template('add_book_confirm.html', message = 'Where on this bookshelf?', selected = selected_data)
+        elif get_action == 'second':
+            height = request.form.get('height')
+            width = request.form.get('width')
+
+        # save cover image if any
         path = ''
         if book['cover'] != None:
             authors = ''
@@ -118,14 +132,19 @@ def confirm_book():
             path = 'static/book_img/'+book['title'] + authors+'.jpg'
             path = path.replace(' ', '')
             book['cover'].save(path, quality=100)
-        db.execute("INSERT INTO books (title, author, language, image, user_id) VALUES (?,?,?,?,?);",
-                   book['title'], book['author'], book['language'], path, session['user_id'])
-        print('hello')
-        return render_template('add_book.html')
-    else:
 
+        # add book to DB
+        if width and height:
+            db.execute("INSERT INTO books (title, author, language, image, location_x, location_y, user_id) VALUES (?,?,?,?,?,?,?);",
+                    book['title'], book['author'], book['language'], path, width, height, session['user_id'])
+        else:
+            db.execute("INSERT INTO books (title, author, language, image, user_id) VALUES (?,?,?,?,?);",
+                    book['title'], book['author'], book['language'], path, session['user_id'])
+        message = "Successfully added" + book['title']
+        session.pop('book')
+        return render_template('index.html', message=message)
+    else:
         image = book['cover']
-        print(image)
         image_bytes = BytesIO()
         image.save(image_bytes, format='JPEG')
         image_bytes = image_bytes.getvalue()
