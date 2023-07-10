@@ -88,12 +88,7 @@ def add_book():
             barcode = decode(image)
             barcode = str(barcode[0][0])
             barcode = re.findall('\d+', barcode)[0]
-            book = book = get_book_data(barcode)
-
-        check_duplicate = db.execute(
-            "SELECT id FROM books WHERE title = ? AND author = ? AND language = ? AND user_id = ?", book['title'], book['author'], book['language'], session['user_id'])
-        if check_duplicate != []:
-            return render_template('add_book.html', message='You already have this book: ' + book['title'] + '\nAdd anyway?')
+            book = get_book_data(barcode)
 
         session['book'] = book
         return redirect('/add_book_confirm')
@@ -102,55 +97,83 @@ def add_book():
         return render_template('add_book.html')
 
 
-@app.route('/add_book_confirm', methods=['GET','POST'])
+@app.route('/add_book_confirm', methods=['GET', 'POST'])
 @login_required
 def confirm_book():
     book = session.get('book')
     if request.method == 'POST':
         get_action = request.form.get('confirm')
-        width = 0
-        height = 0
         if get_action == 'first':
             selected_bookshelf = request.form.get('bookshelf_choice')
             if selected_bookshelf != 'None':
-                selected_data = db.execute("SELECT image, height, width, description FROM bookshelves WHERE id=? AND user_id =?;",selected_bookshelf, session['user_id'])[0]
+                selected_data = db.execute(
+                    "SELECT image, height, width, description FROM bookshelves WHERE id=? AND user_id =?;", selected_bookshelf, session['user_id'])[0]
                 if selected_data['image'] == None:
                     selected_data['image'] = './static/shelf_img/generic.png'
-                return render_template('add_book_confirm.html', message = 'Where on this bookshelf?', selected = selected_data)
-        elif get_action == 'second':
+                session['book'].update({
+                    'bookshelf_id': selected_bookshelf
+                })
+                return render_template('add_book_confirm.html', message='Where on this bookshelf?', selected=selected_data)
+            else:
+                print('not on shelf')
+                return redirect('/added_book')
+        else:
             height = request.form.get('height')
             width = request.form.get('width')
+            session['book'].update({
+                'location_x': width,
+                'location_y': height
+            })
+            return redirect('/added_book')
 
-        # save cover image if any
-        path = ''
-        if book['cover'] != None:
-            authors = ''
-            # since author is a list with multiple possible authors
-            # making a string out of it so we can concat in a str
-            for author in book['author']:
-                authors += author
-            path = 'static/book_img/'+book['title'] + authors+'.jpg'
-            path = path.replace(' ', '')
-            book['cover'].save(path, quality=100)
-
-        # add book to DB
-        if width and height:
-            db.execute("INSERT INTO books (title, author, language, image, location_x, location_y, user_id) VALUES (?,?,?,?,?,?,?);",
-                    book['title'], book['author'], book['language'], path, width, height, session['user_id'])
-        else:
-            db.execute("INSERT INTO books (title, author, language, image, user_id) VALUES (?,?,?,?,?);",
-                    book['title'], book['author'], book['language'], path, session['user_id'])
-        message = "Successfully added" + book['title']
-        session.pop('book')
-        return render_template('index.html', message=message)
     else:
         image = book['cover']
         image_bytes = BytesIO()
         image.save(image_bytes, format='JPEG')
         image_bytes = image_bytes.getvalue()
         encoded_image = b64encode(image_bytes).decode('utf-8')
-        bookshelves = db.execute("SELECT id, description FROM bookshelves WHERE user_id =?;", session['user_id'])
-        return render_template('add_book_confirm.html', book=book, cover = encoded_image, bookshelves = bookshelves)
+        bookshelves = db.execute(
+            "SELECT id, description FROM bookshelves WHERE user_id =?;", session['user_id'])
+        check_duplicate = db.execute(
+            "SELECT id FROM books WHERE title = ? AND author = ? AND language = ? AND user_id = ?", book['title'], book['author'], book['language'], session['user_id'])
+        if check_duplicate != []:
+            return render_template('add_book_confirm.html', message='You already have this book: ' + book['title'] + '\nAdd anyway?', book=book, cover=encoded_image, bookshelves=bookshelves)
+        return render_template('add_book_confirm.html', book=book, cover=encoded_image, bookshelves=bookshelves)
+
+
+@app.route('/added_book')
+@login_required
+def push_book_to_db():
+    book = session.get('book')
+    print(book)
+    # save cover image if any
+    path = ''
+    if book['cover'] != None:
+        authors = ''
+        # since author is a list with multiple possible authors
+        # making a string out of it so we can concat in a str
+        for author in book['author']:
+            authors += author
+        path = 'static/book_img/'+book['title'] + authors+'.jpg'
+        path = path.replace(' ', '')
+        book['cover'].save(path, quality=100)
+
+    message = "Successfully added" + book['title']
+
+    if 'bookshelf_id' in book:
+        shelf = db.execute(
+            "SELECT description FROM bookshelves WHERE id = ?;", book['bookshelf_id'])
+        message += ' on ' + shelf[0]['description'] + ' shelf'
+        db.execute("INSERT INTO books (title, author, language, image, location_x, location_y, user_id) VALUES (?,?,?,?,?,?,?);",
+                   book['title'], book['author'], book['language'], path, book['location_x'], book['location_y'], session['user_id'])
+
+    else:
+        db.execute("INSERT INTO books (title, author, language, image, user_id) VALUES (?,?,?,?,?);",
+                   book['title'], book['author'], book['language'], path, session['user_id'])
+
+    session.pop('book')
+
+    return redirect('/')
 
 
 @app.route('/add_bookshelf', methods=['GET', 'POST'])

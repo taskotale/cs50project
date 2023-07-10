@@ -3,6 +3,7 @@
 <p>{{ message }}</p>
 <h3>Welcome to your Bookshelf!</h3>
 <div>
+	{% if book %}
 	<div class="row row-cols-1 row-cols-md-2 g-4">
 		{% for book in books %}
 		<div class="col" style="max-width: 20rem">
@@ -17,6 +18,9 @@
 		</div>
 		{% endfor %}
 	</div>
+	{%else%}
+	<div>You have no books</div>
+	{%endif%}
 </div>
 
 {% endblock %}
