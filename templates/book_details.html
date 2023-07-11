@@ -1,46 +1,51 @@
-{% extends "index.html" %}
-{% block book_details %}
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">{{ book_details['title'] }} by {{ book_details['author'] }}</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <ul>
-            <li>
-                Language: {{ book_details['language'] }}
-            </li>
-            <li>
-                Read status: {{ book_details['status'] }}
-            </li>
-            <li>
-                Notes: {{ book_details['note'] }}
-            </li>
-            Location : In the 
-          </ul>
-        </div>
-        <div class="modal-footer">
-          <a href="{{url_for('index')}}" type="button" class="btn btn-secondary">Close</a>
-          <button type="button" class="btn btn-primary">Save changes</button>
-        </div>
-      </div>
-    </div>
-  </div>
+{% extends "index.html" %} {% block book_details %}
+<div
+	class="modal fade"
+	id="exampleModal"
+	tabindex="-1"
+	aria-labelledby="exampleModalLabel"
+	aria-hidden="true"
+>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">
+					{{ book_details['title'] }} by {{ book_details['author'] }}
+				</h5>
+				<button
+					type="button"
+					class="btn-close"
+					data-bs-dismiss="modal"
+					aria-label="Close"
+				></button>
+			</div>
+			<div class="modal-body">
+				<ul>
+					<li>Language: {{ book_details['language'] }}</li>
+					<li>Read status: {{ book_details['status'] }}</li>
+					<li>Notes: {{ book_details['note'] }}</li>
+					Location : 
+          {% if book_details['bookshelf_id'] == None %} Not on shelf  {% else
+					%} {{shelf}} {%endif%}
+				</ul>
+			</div>
+			<div class="modal-footer">
+				<a href="{{url_for('index')}}" type="button" class="btn btn-secondary"
+					>Close</a
+				>
+				<button type="button" class="btn btn-primary">Edit</button>
+			</div>
+		</div>
+	</div>
+</div>
 
-
-{% endblock %}
-
-{% block script %}
+{% endblock %} {% block script %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
-    $(document).ready(function(){
-        console.log('loaded')
-        $("#exampleModal").modal("show")
-    })
-    
+	$(document).ready(function () {
+		console.log('loaded');
+		$('#exampleModal').modal('show');
+	});
 </script>
-
 
 {% endblock %}

@@ -40,20 +40,6 @@ def index():
     return render_template('index.html', books=books)
 
 
-@app.route('/book_details')
-@login_required
-def book_details():
-    books = db.execute(
-        "SELECT books.id, title, author, image FROM books JOIN users ON books.user_id = ?", session['user_id'])
-    book_id = request.args.get('id')
-    book_details = db.execute(
-        "SELECT title, author, language, status, note, bookshelf_id, location_x, location_y FROM books WHERE id = ?;", book_id
-    )
-    shelf = db.execute("SELECT description FROM bookshelves WHERE id=?;", book_details[0]['bookshelf_id'])
-    print(shelf)
-    return render_template('book_details.html', books = books, book_details = book_details[0])
-
-
 @app.route('/add_book', methods=['GET', 'POST'])
 @login_required
 def add_book():
@@ -173,8 +159,8 @@ def push_book_to_db():
         shelf = db.execute(
             "SELECT description FROM bookshelves WHERE id = ?;", book['bookshelf_id'])
         message += ' on ' + shelf[0]['description'] + ' shelf'
-        db.execute("INSERT INTO books (title, author, language, image, location_x, location_y, user_id, status) VALUES (?,?,?,?,?,?,?,?);",
-                   book['title'], book['author'], book['language'], path, book['location_x'], book['location_y'], session['user_id'], book['status'])
+        db.execute("INSERT INTO books (title, author, language, image, location_x, location_y, user_id, status, bookshelf_id) VALUES (?,?,?,?,?,?,?,?,?);",
+                   book['title'], book['author'], book['language'], path, book['location_x'], book['location_y'], session['user_id'], book['status'], book['bookshelf_id'])
     else:
         db.execute("INSERT INTO books (title, author, language, image, user_id, status) VALUES (?,?,?,?,?,?);",
                    book['title'], book['author'], book['language'], path, session['user_id'], book['status'])
@@ -218,6 +204,29 @@ def add_bookshelf():
     else:
         return render_template('add_bookshelf.html')
 
+
+@app.route('/book_details')
+@login_required
+def book_details():
+    books = db.execute(
+        "SELECT books.id, title, author, image FROM books JOIN users ON books.user_id = ?", session['user_id'])
+    book_id = request.args.get('id')
+    book_details = db.execute(
+        "SELECT title, author, language, status, note, bookshelf_id, location_x, location_y FROM books WHERE id = ?;", book_id
+    )
+    shelf = db.execute(
+        "SELECT description FROM bookshelves WHERE id=?;", book_details[0]['bookshelf_id'])
+    print(shelf)
+    return render_template('book_details.html', books=books, book_details=book_details[0], shelf=shelf)
+
+
+@app.route('/book_edit', methods=['GET', 'POST'])
+def edit_book():
+    if request.method == 'POST':
+        return
+    else:
+
+        return
 
 
 # reused code from previous problem for login, logout and register
