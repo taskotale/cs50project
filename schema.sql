@@ -18,10 +18,11 @@ CREATE TABLE bookshelves (
 CREATE TABLE books (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     title TEXT NOT NULL,
-    authors TEXT NOT NULL,
+    author TEXT NOT NULL,
     language TEXT,
     location_x INTEGER,
     location_y INTEGER,
+    status TEXT,
     note TEXT,
     image TEXT,
     date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,

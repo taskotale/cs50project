@@ -1,21 +1,17 @@
 import re
-import json
 
 from api_requests import get_book_data
-
 from base64 import b64encode, b64decode
-from io import BytesIO
-
-from image import compress, check_file_type
 from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from helpers import login_required
 from io import BytesIO
+from image import compress, check_file_type
 from PIL import Image  # delete after transferring to separate file
+from pyzbar.pyzbar import decode
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from pyzbar.pyzbar import decode
 
 # using helper function for login required
 
@@ -40,11 +36,22 @@ def after_request(response):
 @login_required
 def index():
     books = db.execute(
-        "SELECT title, author, image FROM books JOIN users ON books.user_id = ?", session['user_id'])
-    if books:
-        return render_template('index.html', books=books)
-    else:
-        return render_template('index.html', books='You have no books')
+        "SELECT books.id AS id, title, author, image FROM books JOIN users ON books.user_id = ?", session['user_id'])
+    return render_template('index.html', books=books)
+
+
+@app.route('/book_details')
+@login_required
+def book_details():
+    books = db.execute(
+        "SELECT books.id, title, author, image FROM books JOIN users ON books.user_id = ?", session['user_id'])
+    book_id = request.args.get('id')
+    book_details = db.execute(
+        "SELECT title, author, language, status, note, bookshelf_id, location_x, location_y FROM books WHERE id = ?;", book_id
+    )
+    shelf = db.execute("SELECT description FROM bookshelves WHERE id=?;", book_details[0]['bookshelf_id'])
+    print(shelf)
+    return render_template('book_details.html', books = books, book_details = book_details[0])
 
 
 @app.route('/add_book', methods=['GET', 'POST'])
@@ -104,6 +111,10 @@ def confirm_book():
     if request.method == 'POST':
         get_action = request.form.get('confirm')
         if get_action == 'first':
+            status = request.form.get('status')
+            session['book'].update({
+                'status': status
+            })
             selected_bookshelf = request.form.get('bookshelf_choice')
             if selected_bookshelf != 'None':
                 selected_data = db.execute(
@@ -115,7 +126,6 @@ def confirm_book():
                 })
                 return render_template('add_book_confirm.html', message='Where on this bookshelf?', selected=selected_data)
             else:
-                print('not on shelf')
                 return redirect('/added_book')
         else:
             height = request.form.get('height')
@@ -145,7 +155,6 @@ def confirm_book():
 @login_required
 def push_book_to_db():
     book = session.get('book')
-    print(book)
     # save cover image if any
     path = ''
     if book['cover'] != None:
@@ -164,12 +173,11 @@ def push_book_to_db():
         shelf = db.execute(
             "SELECT description FROM bookshelves WHERE id = ?;", book['bookshelf_id'])
         message += ' on ' + shelf[0]['description'] + ' shelf'
-        db.execute("INSERT INTO books (title, author, language, image, location_x, location_y, user_id) VALUES (?,?,?,?,?,?,?);",
-                   book['title'], book['author'], book['language'], path, book['location_x'], book['location_y'], session['user_id'])
-
+        db.execute("INSERT INTO books (title, author, language, image, location_x, location_y, user_id, status) VALUES (?,?,?,?,?,?,?,?);",
+                   book['title'], book['author'], book['language'], path, book['location_x'], book['location_y'], session['user_id'], book['status'])
     else:
-        db.execute("INSERT INTO books (title, author, language, image, user_id) VALUES (?,?,?,?,?);",
-                   book['title'], book['author'], book['language'], path, session['user_id'])
+        db.execute("INSERT INTO books (title, author, language, image, user_id, status) VALUES (?,?,?,?,?,?);",
+                   book['title'], book['author'], book['language'], path, session['user_id'], book['status'])
 
     session.pop('book')
 
@@ -209,6 +217,7 @@ def add_bookshelf():
             return render_template('add_bookshelf.html', message='Please insert a valid bookshelf size')
     else:
         return render_template('add_bookshelf.html')
+
 
 
 # reused code from previous problem for login, logout and register
