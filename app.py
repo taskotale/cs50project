@@ -37,7 +37,12 @@ def after_request(response):
 def index():
     books = db.execute(
         "SELECT books.id AS id, title, author, image FROM books JOIN users ON books.user_id = ?", session['user_id'])
-    return render_template('index.html', books=books)
+
+    page = request.args.get('page', 0, type=int)
+    per_page = 10
+    pages = [books[x:x+per_page] for x in range(0, len(books), per_page)]
+
+    return render_template('index.html', books=pages[page], page_num=page, total=len(pages)-1)
 
 
 @app.route('/add_book', methods=['GET', 'POST'])
@@ -131,9 +136,11 @@ def confirm_book():
         bookshelves = db.execute(
             "SELECT id, description FROM bookshelves WHERE user_id =?;", session['user_id'])
         check_duplicate = db.execute(
-            "SELECT id FROM books WHERE title = ? AND author = ? AND language = ? AND user_id = ?", book['title'], book['author'], book['language'], session['user_id'])
+            "SELECT id FROM books WHERE title = ? AND author = ? AND language = ? AND user_id = ?",
+            book['title'], book['author'], book['language'], session['user_id'])
         if check_duplicate != []:
-            return render_template('add_book_confirm.html', message='You already have this book: ' + book['title'] + '\nAdd anyway?', book=book, cover=encoded_image, bookshelves=bookshelves)
+            return render_template('add_book_confirm.html', message='You already have this book: ' + book['title'] + '\nAdd anyway?',
+                                   book=book, cover=encoded_image, bookshelves=bookshelves)
         return render_template('add_book_confirm.html', book=book, cover=encoded_image, bookshelves=bookshelves)
 
 
@@ -160,7 +167,8 @@ def push_book_to_db():
             "SELECT description FROM bookshelves WHERE id = ?;", book['bookshelf_id'])
         message += ' on ' + shelf[0]['description'] + ' shelf'
         db.execute("INSERT INTO books (title, author, language, image, location_x, location_y, user_id, status, bookshelf_id) VALUES (?,?,?,?,?,?,?,?,?);",
-                   book['title'], book['author'], book['language'], path, book['location_x'], book['location_y'], session['user_id'], book['status'], book['bookshelf_id'])
+                   book['title'], book['author'], book['language'], path, book['location_x'], book['location_y'],
+                   session['user_id'], book['status'], book['bookshelf_id'])
     else:
         db.execute("INSERT INTO books (title, author, language, image, user_id, status) VALUES (?,?,?,?,?,?);",
                    book['title'], book['author'], book['language'], path, session['user_id'], book['status'])
@@ -213,7 +221,6 @@ def book_details():
         data = request.form
         if 'delete' in data:
             book_id = data['delete']
-            print(book_id)
             db.execute("DELETE FROM books WHERE id =?;", book_id)
             return redirect('/')
 
@@ -224,17 +231,17 @@ def book_details():
 
         bookshelf_id = []
         if data['location-input'] == 'None':
-            print('in nope')
             bookshelf_id = (None,)
         else:
-            print('in good')
             bookshelf_id = data['location-input']
-        print(bookshelf_id)
 
-        current = db.execute("SELECT bookshelf_id from books where id = ? ", data['edit-book'])
-        print(current)
-        db.execute("UPDATE books SET title = ?, author = ?, language = ?, location_y = ?, location_x = ?, status = ?, note = ?, bookshelf_id = ? WHERE id = ?;", data['title'], data['author'], data['language'], data['selected-max-height'], data['selected-max-width'], status, data['note'], bookshelf_id, data['edit-book'])
-
+        # current = db.execute(
+        #     "SELECT bookshelf_id from books where id = ? ", data['edit-book'])
+        db.execute(
+            "UPDATE books SET title = ?, author = ?, language = ?, location_y = ?, location_x = ?, status = ?, note = ?, bookshelf_id = ? WHERE id = ?;",
+            data['title'], data['author'], data['language'], data['selected-max-height'], data['selected-max-width'], status, data['note'],
+            bookshelf_id, data['edit-book']
+        )
         return redirect('/')
     else:
         books = db.execute(
