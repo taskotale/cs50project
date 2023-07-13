@@ -5,7 +5,7 @@ from base64 import b64encode, b64decode
 from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
-from helpers import login_required
+from helpers import login_required, paginate
 from io import BytesIO
 from image import compress, check_file_type
 from PIL import Image  # delete after transferring to separate file
@@ -32,17 +32,41 @@ def after_request(response):
     return response
 
 
+def get_books():
+    books = db.execute(
+        "SELECT books.id AS id, title, author, image FROM books JOIN users ON books.user_id = ?", session['user_id'])
+    return books
+
+
 @app.route('/')
 @login_required
 def index():
-    books = db.execute(
-        "SELECT books.id AS id, title, author, image FROM books JOIN users ON books.user_id = ?", session['user_id'])
+    query_request = str(request.args.get('find'))
+    bookshelves_request = str(request.args.get('shelf_id'))
+    message = 'Your book collection'
+    if query_request != 'None':
+        # added for potential deeper search
+        # query_request_split = query_request.split()
+        books = db.execute("SELECT id,title, author, image FROM books WHERE user_id = ? AND title LIKE ? OR author LIKE ?;",
+                           session['user_id'], '%'+query_request+'%', '%'+query_request+'%')
+        message = 'Search result for: '+ query_request.title()
+    elif bookshelves_request != 'None':
+        books = db.execute("SELECT id,title, author, image FROM books WHERE bookshelf_id = ?", bookshelves_request)
+        shelf_desc = db.execute("SELECT description FROM bookshelves WHERE id = ?;", bookshelves_request)   
+        message = 'You have these books on '+ shelf_desc[0]['description']
+    else:
+        books = get_books()
 
+    if books == []:
+        books = get_books()
+        message = 'Book not found'
+    
     page = request.args.get('page', 0, type=int)
-    per_page = 10
-    pages = [books[x:x+per_page] for x in range(0, len(books), per_page)]
+    pages = paginate(books, 5)
+    book_num = len(books)
 
-    return render_template('index.html', books=pages[page], page_num=page, total=len(pages)-1)
+    
+    return render_template('index.html', books=pages[page], page_num=page, total=len(pages)-1, message = message, book_num=book_num)
 
 
 @app.route('/add_book', methods=['GET', 'POST'])
@@ -196,16 +220,20 @@ def add_bookshelf():
             height = int(height)
             db.execute("INSERT INTO bookshelves (width, height, description, user_id) VALUES (?,?,?,?);",
                        width, height, description, session['user_id'])
+            bookshelf_id = db.execute(
+                "SELECT id FROM bookshelves WHERE user_id = ? ORDER BY id DESC LIMIT 1;", session['user_id'])
             if uploaded_image:
                 if not check_file_type(uploaded_image):
                     return render_template('add_bookshelf.html', message='File not supported')
-                bookshelf_id = db.execute(
-                    "SELECT id FROM bookshelves WHERE user_id = ? ORDER BY id DESC LIMIT 1;", session['user_id'])
                 path = './static/shelf_img/' + 'bsi' + \
                     str(bookshelf_id[0]['id']) + '.jpg'
                 db.execute("UPDATE bookshelves SET image = ? WHERE id =?;",
                            path, bookshelf_id[0]['id'])
                 compress(uploaded_image, path)
+            else:
+                db.execute("UPDATE bookshelves SET image = ? WHERE id =?;",
+                           './static/shelf_img/generic.png', bookshelf_id[0]['id'])
+
             return render_template('add_bookshelf.html', message='Successfully Added')
         else:
             return render_template('add_bookshelf.html', message='Please insert a valid bookshelf size')
@@ -244,8 +272,10 @@ def book_details():
         )
         return redirect('/')
     else:
-        books = db.execute(
-            "SELECT books.id, title, author, image FROM books JOIN users ON books.user_id = ?", session['user_id'])
+        books = get_books()
+        pages = paginate(books, 5)
+        page = request.args.get('page', 0, type=int)
+
         book_id = request.args.get('id')
         book_details = db.execute(
             "SELECT id, title, author, language, status, note, bookshelf_id, location_x, location_y FROM books WHERE id = ?;", book_id
@@ -255,8 +285,16 @@ def book_details():
 
         bookshelves = db.execute(
             "SELECT id, width, height, description FROM bookshelves WHERE user_id =?;", session['user_id'])
-        return render_template('book_details.html', books=books, book_details=book_details[0], shelf=shelf, bookshelves=bookshelves)
+        # return render_template('index.html', books=pages[page], page_num=page, total=len(pages)-1)
+        return render_template('book_details.html', books=pages[page], book_details=book_details[0], shelf=shelf, bookshelves=bookshelves)
 
+@app.route('/browse')
+@login_required
+def browse():
+    bookshelves = db.execute(
+            "SELECT id, width, height, description, image FROM bookshelves WHERE user_id =?;", session['user_id'])
+    print(bookshelves)
+    return render_template('browse.html', bookshelves=bookshelves)
 
 # reused code from previous problem for login, logout and register
 @app.route('/login', methods=['GET', 'POST'])

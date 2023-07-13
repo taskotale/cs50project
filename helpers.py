@@ -19,3 +19,10 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+# splits list into sublist 
+def paginate (list, per_page):
+    if not per_page:
+        per_page = 10
+    pages = [list[x:x+per_page] for x in range(0, len(list), per_page)]
+    return pages
+

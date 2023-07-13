@@ -4,7 +4,7 @@ main %}
 <p>{{ message }}</p>
 <div>
 	<form action="/add_bookshelf" enctype="multipart/form-data" method="post">
-		<input
+		<input class="form-control mb-3"
 			autocomplete="off"
 			default="1"
 			min="1"
@@ -12,7 +12,7 @@ main %}
 			placeholder="How many shelves wide?"
 			type="number"
 		/>
-		<input
+		<input class="form-control mb-3"
 			autocomplete="off"
 			default="1"
 			min="1"
@@ -20,15 +20,16 @@ main %}
 			placeholder="How many shelves high?"
 			type="number"
 		/>
-		<input
+		<input class="form-control mb-3"
 			autocomplete="off"
 			name="description"
 			placeholder="Give the shelf a name"
 			required
 		/>
-		<input accept="jpg" name="image" type="file" />
-
-		<button name="add" type="submit">Add</button>
+		<div class="input-group">
+			<input accept="jpg" class="form-control" name="image" type="file" />
+			<button class="btn btn-primary" name="add" type="submit">Add</button>
+		</div>
 	</form>
 </div>
 <div>

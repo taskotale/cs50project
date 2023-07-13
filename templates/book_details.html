@@ -8,7 +8,7 @@
 	data-bs-keyboard="false"
 	data-bs-backdrop="static"
 >
-	<div class="modal-dialog modal-dialog-centered">
+	<div class="modal-dialog modal-dialog-centered text-start">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="exampleModalLabel">
@@ -207,16 +207,21 @@
 				</div>
 				<div class="modal-footer">
 					<div class="float-left" style="margin-right: auto">
-						<button name="delete" class="btn btn-danger" value="{{book_details['id']}}" type="submit">
+						<button
+							name="delete"
+							class="btn btn-danger"
+							value="{{book_details['id']}}"
+							type="submit"
+						>
 							Delete
 						</button>
 					</div>
 					<div class="float-right">
 						<a
-							href="{{url_for('index')}}"
+							href="javascript:window.history.back()"
 							type="button"
 							class="btn btn-secondary"
-							>Close</a
+							>back</a
 						>
 						<button
 							name="edit-book"

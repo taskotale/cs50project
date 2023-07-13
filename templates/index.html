@@ -1,15 +1,18 @@
 {% extends "layout.html" %} {% block title %} Index {% endblock %} {% block main
 %}
-<p>{{ message }}</p>
-<h3>Welcome to your Bookshelf!</h3>
+<h2>{{ message }}</h2>
+<p>Found {{ book_num }} book(s)</p>
 <div>
 	{% if books %}
-	<div class="row row-cols-1 row-cols-md-2 g-4">
+	<div class="row row-cols-1 row-cols-md-2 g-4 justify-content-center">
 		{% for book in books %}
-		<div class="col" style="max-width: 15rem">
-			<a class="book-card" href="{{url_for('book_details', id=book['id'])}}">
+		<div class="col" style="max-width: 15rem;" >
+			<a
+				class="book-card"
+				href="{{url_for('book_details', id=book['id'], page=page_num)}}"
+			>
 				<div class="card">
-					<img src="{{ book['image'] }}" class="card-img-top" alt="..." />
+					<img src="{{ book['image'] }}" class="card-img-top rounded" alt="..." />
 					<div class="card-body">
 						<h5 class="card-title">{{ book['title'] }}</h5>
 						<p class="card-text">{{ book['author'] }}</p>
@@ -21,22 +24,45 @@
 	</div>
 </div>
 {% if page_num == total %}
-<a href="javascript:window.history.back()" class="btn btn-secondary"
-	>previous</a
+<a href="javascript:window.history.back()" class="btn btn-secondary mt-2"
+	>Previous</a
 >
 {% elif page_num and page_num != 0 %}
-<a href="javascript:window.history.back()" class="btn btn-secondary"
-	>previous</a
+<a href="javascript:window.history.back()" class="btn btn-secondary mt-2"
+	>Previous</a
 >
-<a href="{{url_for('index', page=page_num+1)}}" class="btn btn-secondary"
-	>next</a
+<a
+	id="next-btn"
+	href="{{url_for('index', page=page_num+1)}}"
+	class="btn btn-secondary mt-2"
+	>Next</a
 >
 {% else %}
-<a href="{{url_for('index', page=page_num+1)}}" class="btn btn-secondary"
-	>next</a
+<a
+	id="next-btn"
+	href="{{url_for('index', page=page_num+1)}}"
+	class="btn btn-secondary mt-2"
+	>Next</a
 >
 {% endif %} {%else%}
 <div>You have no books</div>
 {%endif%}
+<script>
+	const searchParams = new URLSearchParams(window.location.search);
+	let key = '';
+	for (let arg of searchParams.entries()) {
+		if (arg[0] != 'page') {
+			key = arg[0];
+		}
+	}
+
+	if (searchParams.has(key)) {
+		param = searchParams.get(key);
+		const next = document.getElementById('next-btn');
+		if (next) {
+			next.href += '&' + key + '=' + param;
+		}
+	}
+</script>
 {% block book_details %}{% endblock %} {% block edit_book %}{% endblock %} {%
 block script %}{% endblock %} {% endblock %}

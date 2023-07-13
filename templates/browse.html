@@ -1,0 +1,29 @@
+{% extends "layout.html" %} {% block title %} Browse {% endblock %} {% block
+main %}
+<h2>{{ message }}</h2>
+<div>
+	{% if bookshelves %}
+	<div class="row row-cols-1 row-cols-md-2 g-4 justify-content-center">
+		{% for shelf in bookshelves %}
+		<div class="col" style="max-width: 15rem">
+			<a
+				class="shelf"
+				href="{{url_for('index', shelf_id=shelf['id'])}}"
+			>
+				<div class="card">
+					<img src="{{ shelf['image'] }}" class="card-img-top rounded" alt="..." />
+					<div class="card-body">
+						<h5 class="card-title">{{ shelf['description'] }}</h5>
+					</div>
+				</div>
+			</a>
+		</div>
+		{% endfor %}
+	</div>
+</div>
+    {%else%}
+<div>You have no bookshelves</div>
+{%endif%}
+
+{% block book_details %}{% endblock %} {% block edit_book %}{% endblock %} {%
+block script %}{% endblock %} {% endblock %}
