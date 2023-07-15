@@ -32,4 +32,4 @@ CREATE TABLE books (
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
-
+ALTER TABLE books ADD borrowed TEXT;

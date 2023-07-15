@@ -10,6 +10,7 @@ from io import BytesIO
 from image import compress, check_file_type
 from PIL import Image  # delete after transferring to separate file
 from pyzbar.pyzbar import decode
+from random import choice
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
@@ -43,6 +44,7 @@ def get_books():
 def index():
     query_request = str(request.args.get('find'))
     bookshelves_request = str(request.args.get('shelf_id'))
+    random = request.args.get('random')
     message = 'Your book collection'
     if query_request != 'None':
         # added for potential deeper search
@@ -56,6 +58,10 @@ def index():
         shelf_desc = db.execute(
             "SELECT description FROM bookshelves WHERE id = ?;", bookshelves_request)
         message = 'You have these books on ' + shelf_desc[0]['description']
+    elif random:
+        unread_books = db.execute(
+            "SELECT id,title, author, image FROM books WHERE user_id=? AND status IS NULL", session['user_id'])
+        books = [choice(unread_books)]
     else:
         books = get_books()
 
@@ -164,7 +170,7 @@ def confirm_book():
             for auth in book['author']:
                 authors += auth + ', '
             book['author'] = [authors[:-2]]
-            
+
         bookshelves = db.execute(
             "SELECT id, description FROM bookshelves WHERE user_id =?;", session['user_id'])
         check_duplicate = db.execute(
@@ -259,6 +265,10 @@ def book_details():
     if request.method == 'POST':
 
         data = request.form
+        loc_x = data['selected-max-width']
+        loc_y = data['selected-max-height']
+        loc = data['location-input']
+
         if data['submit'] == 'delete':
             book_id = data['book_id']
             db.execute("DELETE FROM books WHERE id =?;", book_id)
@@ -268,19 +278,24 @@ def book_details():
             status = data['status']
         else:
             status = None
-
-        bookshelf_id = []
-        if data['location-input'] == 'None':
-            bookshelf_id = (None,)
+        if 'borrowed' in data:
+            borrowed = data['borrowed']
+            loc = 'None'
         else:
-            bookshelf_id = data['location-input']
+            borrowed = None
+
+        if loc == 'None':
+            loc_y = None
+            loc_x = None
+            loc = (None,)
+        
 
         # current = db.execute(
         #     "SELECT bookshelf_id from books where id = ? ", data['edit-book'])
         db.execute(
-            "UPDATE books SET title = ?, author = ?, language = ?, location_y = ?, location_x = ?, status = ?, note = ?, bookshelf_id = ? WHERE id = ?;",
-            data['title'], data['author'], data['language'], data['selected-max-height'], data['selected-max-width'], status, data['note'],
-            bookshelf_id, data['book_id']
+            "UPDATE books SET title = ?, author = ?, language = ?, location_y = ?, location_x = ?, status = ?, borrowed =?, note = ?, bookshelf_id = ? WHERE id = ?;",
+            data['title'], data['author'], data['language'], loc_y, loc_x, status, borrowed, data['note'],
+            loc, data['book_id']
         )
         return redirect('/')
     else:
@@ -290,7 +305,7 @@ def book_details():
 
         book_id = request.args.get('id')
         book_details = db.execute(
-            "SELECT id, title, author, language, status, note, bookshelf_id, location_x, location_y FROM books WHERE id = ?;", book_id
+            "SELECT id, title, author, language, status, borrowed, note, bookshelf_id, location_x, location_y FROM books WHERE id = ?;", book_id
         )
         shelf = db.execute(
             "SELECT description FROM bookshelves WHERE id=?;", book_details[0]['bookshelf_id'])

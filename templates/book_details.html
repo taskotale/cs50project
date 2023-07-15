@@ -132,7 +132,14 @@
 							Read status: {% if book_details['status'] %}
 							<input type="checkbox" name="status" value="True" checked />
 							{%else%}
-							<input type="checkbox" name="status" />
+							<input type="checkbox" name="status" value="True"/>
+							{% endif %}
+						</li>
+						<li>
+							Borrowed: {% if book_details['borrowed'] %}
+							<input class="borrowed" type="checkbox" name="borrowed" value="True" checked />
+							{%else%}
+							<input class="borrowed" type="checkbox" name="borrowed" value="True"/>
 							{% endif %}
 						</li>
 						<li>
@@ -244,6 +251,11 @@
 {% endblock %} {% block script %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
+	const borrowed = document.querySelector('.borrowed')
+	console.log(borrowed)
+	if (borrowed) { 
+		borrowed.addEventListener('click', ()=> console.log(borrowed.checked))
+	}
 
 	$(document).ready(function () {
 		$('#exampleModal').modal('show');
