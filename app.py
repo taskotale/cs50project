@@ -38,6 +38,7 @@ def get_books():
         "SELECT books.id AS id, title, author, image FROM books JOIN users ON books.user_id = ?", session['user_id'])
     return books
 
+books_to_show = ['']
 
 @app.route('/')
 @login_required
@@ -70,11 +71,12 @@ def index():
 
     page = request.args.get('page', 0, type=int)
     pages = paginate(books, 5)
-    book_num = len(books)
     if pages == []:
         pages.append('')
 
-    return render_template('index.html', books=pages[page], page_num=page, total=len(pages)-1, message=message, book_num=book_num)
+    books_to_show[0] = pages
+
+    return render_template('index.html', books=books_to_show[0][page], page_num=page, total=len(pages)-1, message=message, book_num=len(books))
 
 
 @app.route('/add_book', methods=['GET', 'POST'])
@@ -314,7 +316,7 @@ def book_details():
         bookshelves = db.execute(
             "SELECT id, width, height, description FROM bookshelves WHERE user_id =?;", session['user_id'])
         # return render_template('index.html', books=pages[page], page_num=page, total=len(pages)-1)
-        return render_template('book_details.html', books=pages[page], book_details=book_details[0], shelf=shelf, bookshelves=bookshelves)
+        return render_template('book_details.html', books=books_to_show[0][page], book_details=book_details[0], shelf=shelf, bookshelves=bookshelves)
 
 
 @app.route('/browse')

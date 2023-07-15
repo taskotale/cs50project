@@ -209,7 +209,7 @@
 										min="1"
 										id="selected-max-height"
 										type="number"
-										required
+										
 									/>
 									shelf from bottom
 								</li>
@@ -221,7 +221,7 @@
 										min="1"
 										id="selected-max-width"
 										type="number"
-										required
+										
 									/>
 									shelf from left
 								</li>
@@ -270,6 +270,8 @@
 	$(document).ready(function () {
 		$('#exampleModal').modal('show');
 	});
+
+	$('#delete-btn').click(e=>confirm('Are you sure?'))
 
 	function clickEdit(event) {
 		const target = $(this).data('input');
