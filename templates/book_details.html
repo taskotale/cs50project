@@ -27,7 +27,8 @@
 					<ul>
 						<li>
 							Title:
-							<span data-input="title_input">{{ book_details['title'] }}</span
+							<span class="edit" data-input="title_input"
+								>{{ book_details['title'] }}</span
 							><input
 								name="title"
 								id="title_input"
@@ -37,7 +38,7 @@
 						</li>
 						<li>
 							Author:
-							<span data-input="author-input"
+							<span class="edit" data-input="author-input"
 								>{{ book_details['author'] }}</span
 							>
 							<input
@@ -132,19 +133,32 @@
 							Read status: {% if book_details['status'] %}
 							<input type="checkbox" name="status" value="True" checked />
 							{%else%}
-							<input type="checkbox" name="status" value="True"/>
+							<input type="checkbox" name="status" value="True" />
 							{% endif %}
 						</li>
 						<li>
 							Borrowed: {% if book_details['borrowed'] %}
-							<input class="borrowed" type="checkbox" name="borrowed" value="True" checked />
+							<input
+								id="borrowed"
+								type="checkbox"
+								name="borrowed"
+								value="True"
+								checked
+							/>
 							{%else%}
-							<input class="borrowed" type="checkbox" name="borrowed" value="True"/>
+							<input
+								id="borrowed"
+								type="checkbox"
+								name="borrowed"
+								value="True"
+							/>
 							{% endif %}
 						</li>
 						<li>
 							Notes:
-							<span data-input="note-input">{{ book_details['note'] }}</span>
+							<span class="edit" data-input="note-input"
+								>{{ book_details['note'] }}</span
+							>
 							<input
 								id="note-input"
 								name="note"
@@ -155,6 +169,7 @@
 						<li>
 							Location:
 							<span
+								class="edit"
 								id="current-shelf"
 								data-input="location-input"
 								name="location-input"
@@ -174,8 +189,7 @@
 								id="location-input"
 								style="display: none"
 							>
-								<option disabled>Select bookshelf</option>
-								<option value="None">Not on shelf</option>
+								<option id="hey" value="None">Not on shelf</option>
 								{% for shelf in bookshelves%}
 								<option
 									value="{{shelf['id']}}"
@@ -188,24 +202,26 @@
 							</select>
 							<ul id="hi-wi" style="display: none">
 								<li>
+									<label>Up to {{ book_details['location_y'] }}</label>
 									↑:
 									<input
 										name="selected-max-height"
 										min="1"
-										value="{{ book_details['location_y'] }}"
 										id="selected-max-height"
 										type="number"
+										required
 									/>
 									shelf from bottom
 								</li>
 								<li>
+									<label>Up to {{ book_details['location_x'] }}</label>
 									→:
 									<input
 										name="selected-max-width"
 										min="1"
-										value="{{ book_details['location_x'] }}"
 										id="selected-max-width"
 										type="number"
+										required
 									/>
 									shelf from left
 								</li>
@@ -251,21 +267,18 @@
 {% endblock %} {% block script %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
-	const borrowed = document.querySelector('.borrowed')
-	console.log(borrowed)
-	if (borrowed) { 
-		borrowed.addEventListener('click', ()=> console.log(borrowed.checked))
-	}
-
 	$(document).ready(function () {
 		$('#exampleModal').modal('show');
 	});
 
-	$('span').click(function () {
+	function clickEdit(event) {
 		const target = $(this).data('input');
 		$(this).css('display', 'none');
+		console.log($(this));
+		console.log(target);
 		$('#' + target).css('display', 'inline-block');
-	});
+	}
+	$('.edit').click(clickEdit);
 
 	const lang = $('#language').attr('data-default').toUpperCase();
 	$('#language').val(lang).attr('selected', 'selected');
@@ -274,17 +287,28 @@
 	$('#location-input').val(defaultShelf).attr('selected', 'selected');
 
 	$('#location-input').on('change', function () {
-		console.log('changed');
 		maxHeight = $(this).find('option:selected').data('height');
 		maxWidth = $(this).find('option:selected').data('width');
 		if (maxHeight) {
-			console.log(maxHeight);
-			console.log(maxWidth);
 			$('#hi-wi').css('display', 'inline-block');
 			$('#selected-max-height').attr('max', maxHeight);
 			$('#selected-max-width').attr('max', maxWidth);
 		} else {
 			$('#hi-wi').css('display', 'none');
+		}
+	});
+
+	$('#borrowed').on('click', () => {
+		console.log(borrowed.checked);
+		if (borrowed.checked) {
+			$('#location-input :first-child').attr('selected', 'selected');
+			$('span#current-shelf').text('Not on shelf');
+			$('span#current-shelf').off('click', clickEdit);
+			$('#location-input').css('display', 'none');
+			$('span#current-shelf').css('display', 'inline-block');
+			$('#hi-wi').css('display', 'none');
+		} else {
+			$('span#current-shelf').on('click', clickEdit);
 		}
 	});
 </script>

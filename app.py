@@ -267,7 +267,8 @@ def book_details():
         data = request.form
         loc_x = data['selected-max-width']
         loc_y = data['selected-max-height']
-        loc = data['location-input']
+        if 'location-input' in data:
+            loc = data['location-input']
 
         if data['submit'] == 'delete':
             book_id = data['book_id']
