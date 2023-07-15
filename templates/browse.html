@@ -5,25 +5,48 @@ main %}
 	{% if bookshelves %}
 	<div class="row row-cols-1 row-cols-md-2 g-4 justify-content-center">
 		{% for shelf in bookshelves %}
-		<div class="col" style="max-width: 15rem">
-			<a
-				class="shelf"
-				href="{{url_for('index', shelf_id=shelf['id'])}}"
-			>
+		<div class="col" style="max-width: 15rem; position: relative">
+			<a class="shelf" href="{{url_for('index', shelf_id=shelf['id'])}}">
 				<div class="card">
-					<img src="{{ shelf['image'] }}" class="card-img-top rounded" alt="..." />
+					<img
+						src="{{ shelf['image'] }}"
+						class="card-img-top rounded"
+						alt="..."
+					/>
 					<div class="card-body">
 						<h5 class="card-title">{{ shelf['description'] }}</h5>
 					</div>
 				</div>
 			</a>
+			<form action="/browse" method="get">
+				<button
+					class=" delete-btn btn btn-outline-danger btn-sm"
+					name="delete"
+					value="{{shelf['id']}}"
+					style="
+						position: absolute;
+						top: 3%;
+						right: 6%;
+						background-color: rgba(128, 128, 128, 0.533);
+					"
+				>
+					Delete
+				</button>
+			</form>
 		</div>
 		{% endfor %}
 	</div>
 </div>
-    {%else%}
+{%else%}
 <div>You have no bookshelves</div>
 {%endif%}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+	$('.delete-btn').click(e=>confirm('Are you sure?'))
+	// document
+	// 	.getElementById('delete-btn')
+	// 	.addEventListener('click', (e) => confirm('Are you sure?'));
+</script>
 
 {% block book_details %}{% endblock %} {% block edit_book %}{% endblock %} {%
 block script %}{% endblock %} {% endblock %}

@@ -1,4 +1,5 @@
 import re
+import os
 
 from api_requests import get_book_data
 from base64 import b64encode, b64decode
@@ -322,9 +323,24 @@ def book_details():
 @app.route('/browse')
 @login_required
 def browse():
+    message = 'Your shelves'
+    if 'delete' in request.args:
+        shelf_id = request.args.get('delete')
+        print(shelf_id)
+        check_books = db.execute("SELECT COUNT (*) AS count FROM books WHERE bookshelf_id = ?;", shelf_id)
+        print(check_books[0])
+        if check_books[0]['count'] < 1:
+            shelf = db.execute("SELECT description, image FROM bookshelves WHERE id = ? AND user_id =?;", shelf_id, session['user_id'])
+            if shelf[0]['image'] != './static/shelf_img/generic.png':
+                os.remove(shelf[0]['image'])
+            db.execute("DELETE FROM bookshelves WHERE id = ? AND user_id =?;", shelf_id, session['user_id'])
+            message = 'successfully deleted'
+        else: 
+            message = 'You cant delete a bookshelf that has books on it'
+
     bookshelves = db.execute(
         "SELECT id, width, height, description, image FROM bookshelves WHERE user_id =?;", session['user_id'])
-    return render_template('browse.html', bookshelves=bookshelves)
+    return render_template('browse.html', bookshelves=bookshelves, message = message)
 
 # reused code from previous problem for login, logout and register
 
