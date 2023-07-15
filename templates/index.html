@@ -6,13 +6,17 @@
 	{% if books %}
 	<div class="row row-cols-1 row-cols-md-2 g-4 justify-content-center">
 		{% for book in books %}
-		<div class="col" style="max-width: 15rem;" >
+		<div class="col" style="max-width: 15rem">
 			<a
 				class="book-card"
 				href="{{url_for('book_details', id=book['id'], page=page_num)}}"
 			>
 				<div class="card">
-					<img src="{{ book['image'] }}" class="card-img-top rounded" alt="..." />
+					<img
+						src="{{ book['image'] }}"
+						class="card-img-top rounded"
+						alt="..."
+					/>
 					<div class="card-body">
 						<h5 class="card-title">{{ book['title'] }}</h5>
 						<p class="card-text">{{ book['author'] }}</p>
@@ -23,7 +27,7 @@
 		{% endfor %}
 	</div>
 </div>
-{% if page_num == total %}
+{% if total != 0 %} {% if page_num == total %}
 <a href="javascript:window.history.back()" class="btn btn-secondary mt-2"
 	>Previous</a
 >
@@ -44,9 +48,7 @@
 	class="btn btn-secondary mt-2"
 	>Next</a
 >
-{% endif %} {%else%}
-<div>You have no books</div>
-{%endif%}
+{% endif %} {%endif%} {%endif%}
 <script>
 	const searchParams = new URLSearchParams(window.location.search);
 	let key = '';

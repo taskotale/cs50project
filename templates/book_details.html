@@ -15,13 +15,14 @@
 					{{ book_details['title'] }} by {{ book_details['author'] }}
 				</h5>
 				<a
-					href="{{url_for('index')}}"
+					href="javascript:window.history.back()"
 					type="button"
 					class="btn-close"
 					aria-label="Close"
 				></a>
 			</div>
-			<form action="/book_details" method="post">
+			<form action="/book_details" id="modal-form" method="post">
+				<input name="book_id" value="{{ book_details['id'] }}" type="hidden" />
 				<div class="modal-body">
 					<ul>
 						<li>
@@ -207,11 +208,12 @@
 				</div>
 				<div class="modal-footer">
 					<div class="float-left" style="margin-right: auto">
+						<button name="submit" value="edit" style="display: none"></button>
 						<button
-							name="delete"
+							id="delete-btn"
+							name="submit"
 							class="btn btn-danger"
-							value="{{book_details['id']}}"
-							type="submit"
+							value="delete"
 						>
 							Delete
 						</button>
@@ -224,8 +226,9 @@
 							>back</a
 						>
 						<button
-							name="edit-book"
-							value="{{book_details['id']}}"
+							id="edit-book"
+							name="submit"
+							value="edit"
 							type="submit"
 							class="btn btn-primary"
 						>
@@ -241,6 +244,7 @@
 {% endblock %} {% block script %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
+
 	$(document).ready(function () {
 		$('#exampleModal').modal('show');
 	});

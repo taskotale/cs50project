@@ -6,7 +6,7 @@
 <p>title: {{book['title']}}</p>
 <p>author: {% for key in book['author']%} {{key}} {%endfor%}</p>
 <p>lang: {{book['language']}}</p>
-<img class="rounded" src="data:image/jpg;base64,{{cover}}" />
+<img class="rounded" src="data:image/jpg;base64,{{cover}}" style="max-height: 50vh"/>
 <form action="/add_book_confirm" method="post">
 	<label name="status">Did you read this book?</label>
 	<input type="checkbox" name="status" value="True" />
@@ -20,13 +20,20 @@
 			<option value="{{shelf['id']}}">{{shelf['description']}}</option>
 			{%endfor%}
 		</select>
-		<button name="confirm" value="first" type="submit">confirm</button>
+		<div>
+			<a href="javascript:window.history.back()" class="btn btn-secondary mt-2">Back</a>
+			<button class="btn btn-primary mt-2" name="confirm" value="first" type="submit">confirm</button>
+		</div>
 	</div>
 </form>
 {%else%}
 <div>
 	<h3>{{ selected['description'] }}</h3>
-	<img class="rounded img-fluid" style="max-height: 50vh;" src="{{ selected['image'] }}" />
+	<img
+		class="rounded img-fluid"
+		style="max-height: 50vh"
+		src="{{ selected['image'] }}"
+	/>
 	<form action="/add_book_confirm" method="post">
 		<ul class="text-start mt-2">
 			<li>
@@ -43,9 +50,7 @@
 				shelf from bottom
 			</li>
 			<li>
-				<label for="width" class="form-label"
-					>To {{selected['width']}}</label
-				>
+				<label for="width" class="form-label">To {{selected['width']}}</label>
 				→:
 				<input
 					name="width"
@@ -58,7 +63,10 @@
 				shelf from left
 			</li>
 		</ul>
-		<button name="confirm" value="location" type="submit">confirm</button>
+		<a href="javascript:window.history.back()" class="btn btn-secondary mt-2"
+			>back</a
+		>
+		<button class="btn btn-primary mt-2" name="confirm" value="location" type="submit">confirm</button>
 	</form>
 </div>
 

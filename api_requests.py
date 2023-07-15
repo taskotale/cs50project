@@ -15,7 +15,13 @@ def get_book_data(isbn):
             title = book_data['title']
             authors = book_data['authors']
             language = book_data['language']
-            cover = get_cover(book_data['imageLinks']['thumbnail'])
+            print('BOOK DATA')
+            print(book_data)
+            print('BOOK DATA ENDDDD')
+            if 'imageLinks' in book_data:
+                cover = get_cover(book_data['imageLinks']['thumbnail'])
+            else:
+                cover = Image.open('static/book_img/generic_book.jpg')
             book = {
                 'title': title,
                 'author': authors,

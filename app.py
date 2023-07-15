@@ -49,24 +49,26 @@ def index():
         # query_request_split = query_request.split()
         books = db.execute("SELECT id,title, author, image FROM books WHERE user_id = ? AND title LIKE ? OR author LIKE ?;",
                            session['user_id'], '%'+query_request+'%', '%'+query_request+'%')
-        message = 'Search result for: '+ query_request.title()
+        message = 'Search result for: ' + query_request.title()
     elif bookshelves_request != 'None':
-        books = db.execute("SELECT id,title, author, image FROM books WHERE bookshelf_id = ?", bookshelves_request)
-        shelf_desc = db.execute("SELECT description FROM bookshelves WHERE id = ?;", bookshelves_request)   
-        message = 'You have these books on '+ shelf_desc[0]['description']
+        books = db.execute(
+            "SELECT id,title, author, image FROM books WHERE bookshelf_id = ?", bookshelves_request)
+        shelf_desc = db.execute(
+            "SELECT description FROM bookshelves WHERE id = ?;", bookshelves_request)
+        message = 'You have these books on ' + shelf_desc[0]['description']
     else:
         books = get_books()
 
     if books == []:
-        books = get_books()
         message = 'Book not found'
-    
+
     page = request.args.get('page', 0, type=int)
     pages = paginate(books, 5)
     book_num = len(books)
+    if pages == []:
+        pages.append('')
 
-    
-    return render_template('index.html', books=pages[page], page_num=page, total=len(pages)-1, message = message, book_num=book_num)
+    return render_template('index.html', books=pages[page], page_num=page, total=len(pages)-1, message=message, book_num=book_num)
 
 
 @app.route('/add_book', methods=['GET', 'POST'])
@@ -92,7 +94,7 @@ def add_book():
                 else:
                     return render_template('add_book.html', message='File not supported')
             else:
-                cover = None
+                cover = Image.open('static/book_img/generic_book.jpg')
             book = {
                 'title': request.form.get('title').title().strip(),
                 'author': request.form.get('author').title().strip(),
@@ -157,6 +159,12 @@ def confirm_book():
         image.save(image_bytes, format='JPEG')
         image_bytes = image_bytes.getvalue()
         encoded_image = b64encode(image_bytes).decode('utf-8')
+        if len(book['author']) != 1:
+            authors = ''
+            for auth in book['author']:
+                authors += auth + ', '
+            book['author'] = [authors[:-2]]
+            
         bookshelves = db.execute(
             "SELECT id, description FROM bookshelves WHERE user_id =?;", session['user_id'])
         check_duplicate = db.execute(
@@ -180,8 +188,12 @@ def push_book_to_db():
         # making a string out of it so we can concat in a str
         for author in book['author']:
             authors += author
-        path = 'static/book_img/'+book['title'] + authors+'.jpg'
+
+        authors = authors.replace('/', '_')
+        book_title = book['title'].replace('/', '_')
+        path = 'static/book_img/' + book_title + authors + '.jpg'
         path = path.replace(' ', '')
+
         book['cover'].save(path, quality=100)
 
     message = "Successfully added" + book['title']
@@ -247,8 +259,8 @@ def book_details():
     if request.method == 'POST':
 
         data = request.form
-        if 'delete' in data:
-            book_id = data['delete']
+        if data['submit'] == 'delete':
+            book_id = data['book_id']
             db.execute("DELETE FROM books WHERE id =?;", book_id)
             return redirect('/')
 
@@ -268,7 +280,7 @@ def book_details():
         db.execute(
             "UPDATE books SET title = ?, author = ?, language = ?, location_y = ?, location_x = ?, status = ?, note = ?, bookshelf_id = ? WHERE id = ?;",
             data['title'], data['author'], data['language'], data['selected-max-height'], data['selected-max-width'], status, data['note'],
-            bookshelf_id, data['edit-book']
+            bookshelf_id, data['book_id']
         )
         return redirect('/')
     else:
@@ -288,15 +300,17 @@ def book_details():
         # return render_template('index.html', books=pages[page], page_num=page, total=len(pages)-1)
         return render_template('book_details.html', books=pages[page], book_details=book_details[0], shelf=shelf, bookshelves=bookshelves)
 
+
 @app.route('/browse')
 @login_required
 def browse():
     bookshelves = db.execute(
-            "SELECT id, width, height, description, image FROM bookshelves WHERE user_id =?;", session['user_id'])
-    print(bookshelves)
+        "SELECT id, width, height, description, image FROM bookshelves WHERE user_id =?;", session['user_id'])
     return render_template('browse.html', bookshelves=bookshelves)
 
 # reused code from previous problem for login, logout and register
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     # clear if any user already connected
