@@ -27,9 +27,12 @@
 	</head>
 
 	<body>
-		<nav class="bg-light border navbar navbar-expand-md navbar-light">
-			<div class="container-fluid">
-				<a class="navbar-brand mt-2" href="/">Bookshelf</a>
+		<nav class="bg-light border navbar navbar-expand-md navbar-light p-0 m-0">
+			<div class="container-fluid" style="background-color:rgba(198, 184, 132, 0.752);
+			padding: 1rem;">
+				<a class="navbar-brand" 
+				style="color: rgba(139, 0, 0)" 
+				href="/">BOOKSHELF</a>
 				<button
 					aria-controls="navbar"
 					aria-expanded="false"
@@ -43,7 +46,7 @@
 				</button>
 				<div class="collapse navbar-collapse" id="navbar">
 					{% if session["user_id"] %}
-					<ul class="navbar-nav me-auto mt-2">
+					<ul class="navbar-nav me-auto">
 						<li class="nav-item dropdown">
 							<a
 								class="nav-link dropdown-toggle"
@@ -78,19 +81,19 @@
 							<a class="nav-link" href="/add_bookshelf">Add A Bookshelf</a>
 						</li>
 					</ul>
-					<ul class="navbar-nav ms-auto mt-2">
+					<ul class="navbar-nav ms-auto ">
 						<li class="nav-item">
-							<a class="nav-link btn btn-outline-secondary m-2" href="{{url_for('index', borrowed=true)}}">Borrowed books</a>
+							<a class="nav-link btn btn-outline-secondary" href="{{url_for('index', borrowed=true)}}">Borrowed books</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link btn btn-outline-primary m-2" href="{{url_for('index', random=true)}}">Surprise me!</a>
+							<a class="nav-link btn btn-outline-primary mx-2" href="{{url_for('index', random=true)}}">Surprise me!</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link m-2" href="/logout">Log Out</a>
+							<a class="nav-link" href="/logout">Log Out</a>
 						</li>
 					</ul>
 					{% else %}
-					<ul class="navbar-nav ms-auto mt-2">
+					<ul class="navbar-nav ms-auto ">
 						<li class="nav-item">
 							<a class="nav-link" href="/register">Register</a>
 						</li>
@@ -103,8 +106,18 @@
 			</div>
 		</nav>
 
-		<main class="container-fluid text-center py-5">
+		<main class="container-fluid text-center py-5" >
 			{% block main %}{% endblock %}
 		</main>
+		<footer style="
+		height: 15vh;
+		width: auto;
+		background-image: url(/static/shelf-filled-with-books-.png);
+		background-position: center;
+		position: absolute;
+		left: 0;
+		right: 0;
+		">
+		Made by Tahir Mujic</footer>
 	</body>
 </html>

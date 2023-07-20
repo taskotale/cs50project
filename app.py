@@ -115,7 +115,7 @@ def add_book():
                 cover = Image.open('static/book_img/generic_book.jpg')
             book = {
                 'title': request.form.get('title').title().strip(),
-                'author': request.form.get('author').title().strip(),
+                'author': [request.form.get('author').title().strip()],
                 'language': request.form.get('language').lower(),
                 'cover': cover
             }
