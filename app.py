@@ -1,7 +1,7 @@
 import re
 import os
 
-from api_requests import get_book_data
+from api_requests import get_book_data, search_for_books
 from base64 import b64encode, b64decode
 from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session
@@ -53,7 +53,11 @@ def index():
         # query_request_split = query_request.split()
         books = db.execute("SELECT id,title, author, image FROM books WHERE user_id = ? AND title LIKE ? OR author LIKE ?;",
                            session['user_id'], '%'+query_request+'%', '%'+query_request+'%')
-        message = 'Search result for: ' + query_request.title()
+        if books == []:
+            message = 'You dont have this book but you check it out online'
+            books = search_for_books(query_request)
+        else:
+            message = 'Search result for: ' + query_request.title()
     elif bookshelves_request != 'None':
         books = db.execute(
             "SELECT id,title, author, image FROM books WHERE bookshelf_id = ?", bookshelves_request)
@@ -129,6 +133,21 @@ def add_book():
     else:
         return render_template('add_book.html')
 
+@app.route('/add_book_from_find', methods=['GET', 'POST'])
+@login_required
+def book_from_find():
+    encoded_image = request.form.get('cover')
+    image_bytes = b64decode(encoded_image)
+    image_bytes_io = BytesIO(image_bytes)
+    cover = Image.open(image_bytes_io)
+    book = {
+                'title': request.form.get('title').title(),
+                'author': [request.form.get('author').title()],
+                'language': request.form.get('language').lower(),
+                'cover': cover
+            }
+    session['book'] = book
+    return redirect('/add_book_confirm')
 
 @app.route('/add_book_confirm', methods=['GET', 'POST'])
 @login_required
@@ -161,7 +180,6 @@ def confirm_book():
                 'location_y': height
             })
             return redirect('/added_book')
-
     else:
         image = book['cover']
         image_bytes = BytesIO()
@@ -326,9 +344,7 @@ def browse():
     message = 'Your shelves'
     if 'delete' in request.args:
         shelf_id = request.args.get('delete')
-        print(shelf_id)
         check_books = db.execute("SELECT COUNT (*) AS count FROM books WHERE bookshelf_id = ?;", shelf_id)
-        print(check_books[0])
         if check_books[0]['count'] < 1:
             shelf = db.execute("SELECT description, image FROM bookshelves WHERE id = ? AND user_id =?;", shelf_id, session['user_id'])
             if shelf[0]['image'] != './static/shelf_img/generic.png':

@@ -3,9 +3,9 @@
 <p>{{ message }}</p>
 
 {% if book %}
-<p>title: {{book['title']}}</p>
-<p>author: {% for key in book['author']%} {{key}} {%endfor%}</p>
-<p>lang: {{book['language']}}</p>
+<p>Title: {{book['title']}}</p>
+<p>Author: {% for key in book['author']%} {{key}} {%endfor%}</p>
+<p>Language: {{book['language']}}</p>
 <img class="rounded" src="data:image/jpg;base64,{{cover}}" style="max-height: 50vh"/>
 <form action="/add_book_confirm" method="post">
 	<label name="status">Did you read this book?</label>
@@ -22,7 +22,7 @@
 		</select>
 		<div>
 			<a href="javascript:window.history.back()" class="btn btn-secondary mt-2">Back</a>
-			<button class="btn btn-primary mt-2" name="confirm" value="first" type="submit">confirm</button>
+			<button class="btn btn-primary mt-2" name="confirm" value="first" type="submit">Confirm</button>
 		</div>
 	</div>
 </form>
