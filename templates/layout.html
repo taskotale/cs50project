@@ -47,7 +47,7 @@
 				<div class="collapse navbar-collapse" id="navbar">
 					{% if session["user_id"] %}
 					<ul class="navbar-nav me-auto">
-						<li class="nav-item dropdown">
+						<li class="nav-item dropdown" >
 							<a
 								class="nav-link dropdown-toggle"
 								data-bs-toggle="dropdown"
@@ -56,11 +56,12 @@
 								aria-expanded="false"
 								>Find</a
 							>
-							<ul class="dropdown-menu">
+							<ul class="dropdown-menu" style="background-color:rgba(198, 184, 132, 0.752)">
 								<form action="/" method="get">
 									<li>
 										<div class="input-group" style="padding: 0 0.5rem;">
 											<input
+											
 												class="form-control"
 												name="find"
 												type="text"
@@ -83,7 +84,7 @@
 					</ul>
 					<ul class="navbar-nav ms-auto ">
 						<li class="nav-item">
-							<a class="nav-link btn btn-outline-secondary" href="{{url_for('index', borrowed=true)}}">Borrowed books</a>
+							<a class="nav-link btn btn-outline-secondary mx-2 mb-2" href="{{url_for('index', borrowed=true)}}">Borrowed books</a>
 						</li>
 						<li class="nav-item">
 							<a class="nav-link btn btn-outline-primary mx-2" href="{{url_for('index', random=true)}}">Surprise me!</a>
@@ -117,7 +118,10 @@
 		position: absolute;
 		left: 0;
 		right: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		">
-		Made by Tahir Mujic</footer>
+		<div style="background-color:rgba(198, 184, 132, 0.752); text-align: center; margin: auto; font-size: large; padding: 0.5rem;">Made by Tahir Mujic</div></footer>
 	</body>
 </html>

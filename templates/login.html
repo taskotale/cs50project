@@ -5,6 +5,8 @@ Log In
 {% endblock %}
 
 {% block main %}
+<h2 class="mb-3" >{{ message }}</h2>
+
 <form action="/login" method="post">
     <div class="mb-3">
         <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="username" name="username" placeholder="Username" type="text">

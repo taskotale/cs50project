@@ -377,17 +377,18 @@ def login():
         elif not request.form.get('password'):
             return render_template('login.html', message='Please input password')
 
-        rows = db.execute(
+        user = db.execute(
             "SELECT * FROM users WHERE username = ?",
             request.form.get('username')
         )
-        if len(rows) != 1 or not check_password_hash(
-            rows[0]['hash'], request.form.get('password')
+
+        if len(user) != 1 or not check_password_hash(
+            user[0]['hash'], request.form.get('password')
         ):
-            return render_template('login.html', message='does not exist')
+            return render_template('login.html', message='Username or password incorrect')
 
         # Remember which user has logged in
-        session['user_id'] = rows[0]['id']
+        session['user_id'] = user[0]['id']
 
         # successful login
         return redirect('/')
