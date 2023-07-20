@@ -29,7 +29,7 @@
 	<body>
 		<nav class="bg-light border navbar navbar-expand-md navbar-light">
 			<div class="container-fluid">
-				<a class="navbar-brand" href="/">Bookshelf</a>
+				<a class="navbar-brand mt-2" href="/">Bookshelf</a>
 				<button
 					aria-controls="navbar"
 					aria-expanded="false"
@@ -80,13 +80,13 @@
 					</ul>
 					<ul class="navbar-nav ms-auto mt-2">
 						<li class="nav-item">
-							<a class="nav-link btn btn-outline-secondary" href="{{url_for('index', borrowed=true)}}">Borrowed books</a>
+							<a class="nav-link btn btn-outline-secondary m-2" href="{{url_for('index', borrowed=true)}}">Borrowed books</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link btn btn-outline-primary mx-2" href="{{url_for('index', random=true)}}">Surprise me!</a>
+							<a class="nav-link btn btn-outline-primary m-2" href="{{url_for('index', random=true)}}">Surprise me!</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link" href="/logout">Log Out</a>
+							<a class="nav-link m-2" href="/logout">Log Out</a>
 						</li>
 					</ul>
 					{% else %}
