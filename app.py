@@ -47,6 +47,7 @@ def index():
     query_request = str(request.args.get('find'))
     bookshelves_request = str(request.args.get('shelf_id'))
     random = request.args.get('random')
+    borrowed = request.args.get('borrowed')
     message = 'Your book collection'
     if query_request != 'None':
         # added for potential deeper search
@@ -68,6 +69,10 @@ def index():
         unread_books = db.execute(
             "SELECT id,title, author, image FROM books WHERE user_id=? AND status IS NULL", session['user_id'])
         books = [choice(unread_books)]
+    elif borrowed:
+        books = db.execute(
+            "SELECT id, title, author, image FROM books WHERE user_id=? AND borrowed IS NOT NULL", session['user_id']
+        )
     else:
         books = get_books()
 

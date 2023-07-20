@@ -80,7 +80,10 @@
 					</ul>
 					<ul class="navbar-nav ms-auto mt-2">
 						<li class="nav-item">
-							<a class="nav-link btn btn-outline-primary" href="{{url_for('index', random=true)}}">Surprise me!</a>
+							<a class="nav-link btn btn-outline-secondary" href="{{url_for('index', borrowed=true)}}">Borrowed books</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link btn btn-outline-primary mx-2" href="{{url_for('index', random=true)}}">Surprise me!</a>
 						</li>
 						<li class="nav-item">
 							<a class="nav-link" href="/logout">Log Out</a>
