@@ -435,14 +435,12 @@ def register():
                 return 'password too short'
             # currently no need for additional security check
 
-            # elif not re.search('[a-z]', password):
-            #     return 'password must contain a lower case letter'
-            # elif not re.search('[A-Z]', password):
-            #     return 'password must contain a capital letter'
-            # elif not re.search('[0-9]', password):
-            #     return 'password must contain a number'
-            # elif not re.search('[_@$]', password):
-            #     return 'password must contain _ or @ or $'
+            elif not re.search('[a-z]', password):
+                return 'password must contain a lower case letter'
+            elif not re.search('[A-Z]', password):
+                return 'password must contain a capital letter'
+            elif not re.search('[0-9]', password):
+                return 'password must contain a number'
             else:
                 return True
 
