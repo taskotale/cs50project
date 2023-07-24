@@ -57,6 +57,8 @@ def index():
         if books == []:
             message = 'You dont have this book but you check it out online'
             books = search_for_books(query_request)
+            if books == None:
+                books = []
         else:
             message = 'Search result for: ' + query_request.title()
     elif bookshelves_request != 'None':
