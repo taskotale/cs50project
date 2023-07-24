@@ -77,8 +77,6 @@ def index():
         )
     else:
         books = get_books()
-        print("else")
-        print(books)
 
     if books == []:
         message = 'Book not found'
@@ -313,6 +311,13 @@ def book_details():
             loc = 'None'
         else:
             borrowed = None
+        
+        if 'note' in data:
+            note = data['note']
+            if note == '':
+                note = 'None'
+        else:
+            note = 'None'
 
         if loc == 'None':
             loc_y = None
@@ -324,7 +329,7 @@ def book_details():
         #     "SELECT bookshelf_id from books where id = ? ", data['edit-book'])
         db.execute(
             "UPDATE books SET title = ?, author = ?, language = ?, location_y = ?, location_x = ?, status = ?, borrowed =?, note = ?, bookshelf_id = ? WHERE id = ?;",
-            data['title'], data['author'], data['language'], loc_y, loc_x, status, borrowed, data['note'],
+            data['title'], data['author'], data['language'], loc_y, loc_x, status, borrowed, note,
             loc, data['book_id']
         )
         return redirect('/')
