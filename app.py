@@ -9,7 +9,7 @@ from flask_session import Session
 from helpers import login_required, paginate
 from io import BytesIO
 from image import compress, check_file_type
-from PIL import Image  # delete after transferring to separate file
+from PIL import Image  # delete after transferring to separate file.py
 from pyzbar.pyzbar import decode
 from random import choice
 from werkzeug.security import check_password_hash, generate_password_hash
