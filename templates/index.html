@@ -23,14 +23,15 @@
 					/>
 					{%else%}
 					<img
-						src="data:image/jpg;base64,{{book['cover']}}"
-						class="card-img-top rounded"
-						alt=""
+					src="data:image/jpg;base64,{{book['cover']}}"
+					class="card-img-top rounded"
+					alt=""
 					/>
 					{%endif%}
 					<div class="card-body">
 						<h5 class="card-title">{{ book['title'] }}</h5>
 						<p class="card-text">{{ book['author'] }}</p>
+					
 					{% if message == 'You dont have this book but you check it out online'%}
 						<a class="btn btn-outline-secondary" target="_blank" rel="noopener noreferrer" href="{{ book['link'] }}">Google</a>
 						<a class="btn btn-outline-secondary" target="_blank" rel="noopener noreferrer" href="https://www.amazon.com/s?k={{book['title']}}&i=stripbooks&crid=2MGDPOH75D0YP&sprefix=a%2Cstripbooks%2C109&ref=nb_sb_noss_2">Amazon</a>

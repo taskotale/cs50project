@@ -36,7 +36,7 @@ def after_request(response):
 
 def get_books():
     books = db.execute(
-        "SELECT books.id AS id, title, author, image FROM books JOIN users ON books.user_id = ?", session['user_id'])
+        "SELECT id, title, author, image FROM books WHERE user_id=?", session['user_id'])
     return books
 
 books_to_show = ['']
@@ -75,6 +75,8 @@ def index():
         )
     else:
         books = get_books()
+        print("else")
+        print(books)
 
     if books == []:
         message = 'Book not found'
@@ -83,10 +85,9 @@ def index():
     pages = paginate(books, 5)
     if pages == []:
         pages.append('')
-
     books_to_show[0] = pages
 
-    return render_template('index.html', books=books_to_show[0][page], page_num=page, total=len(pages)-1, message=message, book_num=len(books))
+    return render_template('index.html', books=pages[page], page_num=page, total=len(pages)-1, message=message, book_num=len(books))
 
 
 @app.route('/add_book', methods=['GET', 'POST'])
