@@ -94,4 +94,6 @@ The Bookshelf web application relies on the following external libraries and API
     Requires wraps from functools library so we can wrap separate routes in  app.py.
     The paginate function takes an array of objects and splits them into pages/arrays of specific lengths.
 
+##### script in index.html
+    This code provides help with the pagination from different sources, like all books, search or bookshelf books. Makes it dynamic so there is no need to hardcode it for all options and injects the href in the html.
 
