@@ -52,7 +52,7 @@ The Bookshelf web application relies on the following external libraries and API
         - All section will _ _create a books dict/object_ _ which will then paginate the result with a simple function imported from the helpers.py file and stored in the book_to_show list for future use.
 
         - This route returns a render_template with necessary information to display the selected list of books.
-    
+
     - The add_book route.
         - This route if accessed by "GET" returns an html page that allows the user to select the way they want to add a book. If "POST", this route will gather details to make a book object that will be saved in the session and redirect to "/add_book_confirm" route.
         - There are 3 ways to input details and add a book:
@@ -60,10 +60,10 @@ The Bookshelf web application relies on the following external libraries and API
             2. Search by barcode image.  If the user submits an image with a barcode on it, the _ _decode_ _ function from pyzbar.pyzbar library will extract the ISBN and use the same path as the previous method.
             3.Manual input. If this option is selected and sent thru, the route will create the book object based on the manual user input form.
 
-    - The add_book_from_find route. 
+    - The add_book_from_find route.
         This route is used to make an object out of the details found online with the 'Find' option and redirect to the "/add_book_confirm" route.
 
-    - The add_book_confirm route. 
+    - The add_book_confirm route.
         - When approaching this route with "GET" method, it displays the details found in the object gathered by "/add_book". Checks for possible duplicates, shows the cover image of the book(or generic image if none) without saving and offers an option to set where the book will go.
         - The "POST" method of this route handles the selection of the location on the specific bookshelf if any is chosen. After completing the details redirects to the "added_book" route.
 
@@ -81,19 +81,28 @@ The Bookshelf web application relies on the following external libraries and API
     - The logout route clears the session data.
     - The register route register a new user to the database. Checks for a valid more secure password and hashes the same  with the library werkzeug.security.
 
-##### api_requests.py 
+##### api_requests.py
+
     This support .py handles the logic of requests from the Google API and creates appropriate book objects.
     - get_book_data() function gets a api response when queried by ISBN and creates a json which will be used to gather book info
-    - get_book() function returns a book object based on the json response received from the API. 
-    Gets 2 arguments, the json data and a boolean which will help determine how to create a cover img. 
+    - get_book() function returns a book object based on the json response received from the API.
+    Gets 2 arguments, the json data and a boolean which will help determine how to create a cover img.
     - get_cover() function requests an img from the url provided in the API response.
     - search_for_books() function is used to search the google api by search terms with returns multiple books.
 
-##### helpers.py 
+##### helpers.py
+
     Provides helper functions login_required and paginate.
     Requires wraps from functools library so we can wrap separate routes in  app.py.
     The paginate function takes an array of objects and splits them into pages/arrays of specific lengths.
 
 ##### script in index.html
+
     This code provides help with the pagination from different sources, like all books, search or bookshelf books. Makes it dynamic so there is no need to hardcode it for all options and injects the href in the html.
 
+#### SQL database tables
+
+    The database contains 3 tables.
+    - Users - holds the id, name and hashed password
+    - Bookshelves - contains details about the shelves as well as the user_id that owns the shelf (wanted to omit but impossible since there is an option for an empty bookshelf which will loose track if just JOINed with books.)
+    - Books - All the necessary details about the books.
