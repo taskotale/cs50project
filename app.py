@@ -4,7 +4,7 @@ import os
 from api_requests import get_book_data, search_for_books
 from base64 import b64encode, b64decode
 from cs50 import SQL
-from flask import Flask, flash, redirect, render_template, request, session
+from flask import Flask, redirect, render_template, request, session
 from flask_session import Session
 from helpers import login_required, paginate
 from io import BytesIO

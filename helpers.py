@@ -1,5 +1,3 @@
-import requests
-
 from flask import redirect, session
 from functools import wraps
 
