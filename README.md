@@ -71,3 +71,15 @@ The Bookshelf web application relies on the following external libraries and API
 
     - The __"/add_bookshelf"__ route. This route gathers input from the user about new bookshelves which will add on the bookshelf db table.
 
+    - The __"/book_details"__ route creates a 'modal' over the index page that uses the books_to_show global list.
+        - If the method is "GET", offers the user the overview of the details of the selected book found by book id gathered from the url. The jquery/js on the html will offer the possibility to click on a field and edit the inputs.
+        - If method is "POST", and assuming that the user made a change, this function will request the data from the form and update the database.
+
+    - The __"/browse"__ route allows users to get a view of the books per bookshelf and the option to delete an empty bookshelf. Mostly sql commands.
+
+    - The __"/login"__ route checks for users by username and hashed password in the database and saves user in the session.
+    - The __"/logout"__ route clears the session data.
+    - The __"/register"__ route register a new user to the database. Checks for a valid more secure password and hashes the same  with the library werkzeug.security.
+
+##### api_requests.py 
+    
