@@ -334,8 +334,6 @@ def book_details():
         )
         return redirect('/')
     else:
-        books = get_books()
-        pages = paginate(books, 5)
         page = request.args.get('page', 0, type=int)
 
         book_id = request.args.get('id')
