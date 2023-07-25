@@ -37,16 +37,16 @@ The Bookshelf web application relies on the following external libraries and API
     In the file app.py is stored the main application logic and functions.
 
     - There are few global items that are needed  in multiple routes:
-        1. The __db object__ to work with the data from database
-        2. The __get_books()__ function, which returns all the books for the current user
-        3. The __books_to_show list(array)__ which holds the books that will be shown on screen when a modal is on so we don't have to make multiple unnecessary calls to the database over and over.
+        1. The db object to work with the data from database
+        2. The get_books() function, which returns all the books for the current user
+        3. The books_to_show list(array) which holds the books that will be shown on screen when a modal is on so we don't have to make multiple unnecessary calls to the database over and over.
 
-    - The " route - index__. This is the main route to show books to the user.
+    - The " route - index. This is the main route to show books to the user.
         -  Redirection:
-            1. If redirected from __Find__: it will get the arguments from the url for the searched string. This section searches the database for similar input based on the 'title' OR 'author' and if the query does not produce a result it will request results from the Google Books API. (api_request.py)
-            2. If redirected from __Browse__: it will query the database for all books with a specific bookshelf_id set in the books table.
-            3. If redirected from the __Surprise me!__ button: outputs a random single item from the queried list of unread books with the choice function from the random library.
-            4. If looking from __Borrowed books__ button: queries all books are marked as borrowed.
+            1. If redirected from Find: it will get the arguments from the url for the searched string. This section searches the database for similar input based on the 'title' OR 'author' and if the query does not produce a result it will request results from the Google Books API. (api_request.py)
+            2. If redirected from Browse: it will query the database for all books with a specific bookshelf_id set in the books table.
+            3. If redirected from the Surprise me! button: outputs a random single item from the queried list of unread books with the choice function from the random library.
+            4. If looking from Borrowed books button: queries all books are marked as borrowed.
             5. If not redirected from anywhere uses the get_books() function to query all books.
 
         - All section will _ _create a books dict/object_ _ which will then paginate the result with a simple function imported from the helpers.py file and stored in the book_to_show list for future use.
@@ -54,11 +54,11 @@ The Bookshelf web application relies on the following external libraries and API
         - This route returns a render_template with necessary information to display the selected list of books.
     
     - The add_book route.
-        - This route if accessed by "GET" returns an html page that allows the user to select the way they want to add a book. If "POST", this route will gather details to make a book object that will be saved in the __session__ and redirect to "/add_book_confirm" route.
+        - This route if accessed by "GET" returns an html page that allows the user to select the way they want to add a book. If "POST", this route will gather details to make a book object that will be saved in the session and redirect to "/add_book_confirm" route.
         - There are 3 ways to input details and add a book:
-            1. __Search by The International Standard Book Number (ISBN)__. If user submits ISBN, the route will fetch a response from the Google API with the **get_book_data()** function from api_requests.py.
-            2. __Search by barcode image. __ If the user submits an image with a barcode on it, the _ _decode_ _ function from pyzbar.pyzbar library will extract the ISBN and use the same path as the previous method.
-            3.__Manual input__. If this option is selected and sent thru, the route will create the book object based on the manual user input form.
+            1. Search by The International Standard Book Number (ISBN). If user submits ISBN, the route will fetch a response from the Google API with the **get_book_data()** function from api_requests.py.
+            2. Search by barcode image.  If the user submits an image with a barcode on it, the _ _decode_ _ function from pyzbar.pyzbar library will extract the ISBN and use the same path as the previous method.
+            3.Manual input. If this option is selected and sent thru, the route will create the book object based on the manual user input form.
 
     - The add_book_from_find route. 
         This route is used to make an object out of the details found online with the 'Find' option and redirect to the "/add_book_confirm" route.
@@ -93,3 +93,5 @@ The Bookshelf web application relies on the following external libraries and API
     Provides helper functions login_required and paginate.
     Requires wraps from functools library so we can wrap separate routes in  app.py.
     The paginate function takes an array of objects and splits them into pages/arrays of specific lengths.
+
+
