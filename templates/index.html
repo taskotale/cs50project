@@ -1,3 +1,6 @@
+<!DOCTYPE html>
+
+
 {% extends "layout.html" %} {% block title %} Index {% endblock %} {% block main
 %}
 <h2>{{ message }}</h2>
@@ -7,14 +10,14 @@
 	<div class="row row-cols-1 row-cols-md-2 g-4 justify-content-center">
 		{% for book in books %}
 		<div class="col" style="max-width: 15rem">
-			{% if message != 'You dont have this book but you check it out online'%}
+			{% if message != 'You don`t have this book but you check it out online'%}
 			<a
 				class="book-card"
 				href="{{url_for('book_details', id=book['id'], page=page_num)}}"
 			>
 				{%endif%}
 				<div class="card">
-					{% if message != 'You dont have this book but you check it out online'
+					{% if message != 'You don`t have this book but you check it out online'
 					%}
 					<img
 						src="{{ book['image'] }}"
@@ -32,7 +35,7 @@
 						<h5 class="card-title">{{ book['title'] }}</h5>
 						<p class="card-text">{{ book['author'] }}</p>
 					
-					{% if message == 'You dont have this book but you check it out online'%}
+					{% if message == 'You don`t have this book but you check it out online'%}
 						<a class="btn btn-outline-secondary" target="_blank" rel="noopener noreferrer" href="{{ book['link'] }}">Google</a>
 						<a class="btn btn-outline-secondary" target="_blank" rel="noopener noreferrer" href="https://www.amazon.com/s?k={{book['title']}}&i=stripbooks&crid=2MGDPOH75D0YP&sprefix=a%2Cstripbooks%2C109&ref=nb_sb_noss_2">Amazon</a>
 

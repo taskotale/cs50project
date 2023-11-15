@@ -5,6 +5,8 @@
 	"python.formatting.provider": "none",
 	"cSpell.words": [
 		"AUTOINCREMENT",
+		"fontawesome",
+		"Fonticons",
 		"frombytes",
 		"jsonify",
 		"pyheif",
