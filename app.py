@@ -39,7 +39,9 @@ def get_books():
         "SELECT id, title, author, image FROM books WHERE user_id=?", session['user_id'])
     return books
 
+
 books_to_show = ['']
+
 
 @app.route('/')
 @login_required
@@ -55,7 +57,7 @@ def index():
         books = db.execute("SELECT id,title, author, image FROM books WHERE user_id = ? AND title LIKE ? OR author LIKE ?;",
                            session['user_id'], '%'+query_request+'%', '%'+query_request+'%')
         if books == []:
-            message = 'You dont have this book but you check it out online'
+            message = 'You dont have this book but you can check it out online!'
             books = search_for_books(query_request)
             if books == None:
                 books = []
@@ -73,7 +75,8 @@ def index():
         books = [choice(unread_books)]
     elif borrowed:
         books = db.execute(
-            "SELECT id, title, author, image FROM books WHERE user_id=? AND borrowed IS NOT NULL", session['user_id']
+            "SELECT id, title, author, image FROM books WHERE user_id=? AND borrowed IS NOT NULL", session[
+                'user_id']
         )
     else:
         books = get_books()
@@ -139,6 +142,7 @@ def add_book():
     else:
         return render_template('add_book.html')
 
+
 @app.route('/add_book_from_find', methods=['GET', 'POST'])
 @login_required
 def book_from_find():
@@ -147,13 +151,14 @@ def book_from_find():
     image_bytes_io = BytesIO(image_bytes)
     cover = Image.open(image_bytes_io)
     book = {
-                'title': request.form.get('title').title(),
-                'author': [request.form.get('author').title()],
-                'language': request.form.get('language').lower(),
-                'cover': cover
-            }
+        'title': request.form.get('title').title(),
+        'author': [request.form.get('author').title()],
+        'language': request.form.get('language').lower(),
+        'cover': cover
+    }
     session['book'] = book
     return redirect('/add_book_confirm')
+
 
 @app.route('/add_book_confirm', methods=['GET', 'POST'])
 @login_required
@@ -311,7 +316,7 @@ def book_details():
             loc = 'None'
         else:
             borrowed = None
-        
+
         if 'note' in data:
             note = data['note']
             if note == '':
@@ -323,7 +328,6 @@ def book_details():
             loc_y = None
             loc_x = None
             loc = (None,)
-        
 
         # current = db.execute(
         #     "SELECT bookshelf_id from books where id = ? ", data['edit-book'])
@@ -355,19 +359,22 @@ def browse():
     message = 'Your shelves'
     if 'delete' in request.args:
         shelf_id = request.args.get('delete')
-        check_books = db.execute("SELECT COUNT (*) AS count FROM books WHERE bookshelf_id = ?;", shelf_id)
+        check_books = db.execute(
+            "SELECT COUNT (*) AS count FROM books WHERE bookshelf_id = ?;", shelf_id)
         if check_books[0]['count'] < 1:
-            shelf = db.execute("SELECT description, image FROM bookshelves WHERE id = ? AND user_id =?;", shelf_id, session['user_id'])
+            shelf = db.execute(
+                "SELECT description, image FROM bookshelves WHERE id = ? AND user_id =?;", shelf_id, session['user_id'])
             if shelf[0]['image'] != './static/shelf_img/generic.png':
                 os.remove(shelf[0]['image'])
-            db.execute("DELETE FROM bookshelves WHERE id = ? AND user_id =?;", shelf_id, session['user_id'])
+            db.execute("DELETE FROM bookshelves WHERE id = ? AND user_id =?;",
+                       shelf_id, session['user_id'])
             message = 'successfully deleted'
-        else: 
+        else:
             message = 'You cant delete a bookshelf that has books on it'
 
     bookshelves = db.execute(
         "SELECT id, width, height, description, image FROM bookshelves WHERE user_id =?;", session['user_id'])
-    return render_template('browse.html', bookshelves=bookshelves, message = message)
+    return render_template('browse.html', bookshelves=bookshelves, message=message)
 
 # reused code from previous problem for login, logout and register
 
